@@ -1,0 +1,41 @@
+Track State
+
+Version:
+0.001
+
+Thu Dec  2 16:23:53 2021
+
+Servo Data:
+M, M, M, M, M, M, L, R,  ,  ,  ,  ,  ,  ,  ,  
+
+Train Detector Data:
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  ,  ,  ,  ,  ,  
+
+Train Signal Data:
+G, Y, G, G, G, G, G, G
+
+Acela Route Selection:
+1
+Direction:
+South
+Loop Number:
+0
+Miles To Station:
+0
+Trip Miles:
+0
+Scale:
+1
+
+CT Shore Route Selection:
+16
+Direction:
+North
+Loop Number:
+0
+Miles To Station:
+0
+Trip Miles:
+0
+Scale:
+1

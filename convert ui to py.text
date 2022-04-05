@@ -1,0 +1,7 @@
+pyuic5 -o AI_Win.py AI_Window.ui
+
+pyuic5 -o Configurator.py Configurator.ui
+
+pyuic5 -o Acela_Strt_Pt.py Acela_Strt_Pt.ui
+
+pyuic5 -o CT_Shore_Strt_Pt.py CT_Shore_Strt_Pt.ui

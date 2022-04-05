@@ -611,9 +611,9 @@
      <widget class="QLabel" name="label_7">
       <property name="geometry">
        <rect>
-        <x>0</x>
+        <x>20</x>
         <y>40</y>
-        <width>131</width>
+        <width>61</width>
         <height>28</height>
        </rect>
       </property>
@@ -627,18 +627,18 @@
        </font>
       </property>
       <property name="text">
-       <string>Miles to Next:</string>
+       <string>Speed:</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="lMilesToNext">
+     <widget class="QLabel" name="lSpd">
       <property name="geometry">
        <rect>
-        <x>130</x>
+        <x>100</x>
         <y>39</y>
-        <width>81</width>
+        <width>61</width>
         <height>28</height>
        </rect>
       </property>
@@ -1045,9 +1045,9 @@
      <widget class="QLabel" name="label_15">
       <property name="geometry">
        <rect>
-        <x>0</x>
+        <x>20</x>
         <y>40</y>
-        <width>131</width>
+        <width>61</width>
         <height>28</height>
        </rect>
       </property>
@@ -1061,18 +1061,18 @@
        </font>
       </property>
       <property name="text">
-       <string>Miles to Next:</string>
+       <string>Speed:</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
       </property>
      </widget>
-     <widget class="QLabel" name="mMilesToNext">
+     <widget class="QLabel" name="mSpd">
       <property name="geometry">
        <rect>
-        <x>130</x>
+        <x>100</x>
         <y>39</y>
-        <width>81</width>
+        <width>61</width>
         <height>28</height>
        </rect>
       </property>

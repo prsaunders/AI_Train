@@ -1,0 +1,42 @@
+Session State
+
+Version:
+0.001
+
+Sat Dec  4 11:18:26 2021
+
+Servo State:
+ ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  
+
+Train Detector State:
+0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  
+
+Train Signal State:
+G, G, G, G, G, G, G, G
+
+Acela Route Selection
+6
+Direction:
+North
+Loop Number:
+0
+Miles To Station:
+81+
+Trip Miles:
+0
+Scale:
+1
+
+CT Route Selection
+Direction:
+7
+Direction:
+South
+Loop Number:
+0
+Miles To Station:
+3+
+Trip Miles:
+0
+Scale:
+1

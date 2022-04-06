@@ -365,7 +365,7 @@ def setSpdDir(l, n, t):
             timeMDir = "N"
         timeMD = n
         if timeM[n] != 0:
-            mainSpd = 128.56*timeM[n]**-1.422
+            mainSpd = 128.56*(timeM[n]*MScale)**-1.422
             if timeMDir != Main_Dir:
                 mainSpd *= -1
         else:

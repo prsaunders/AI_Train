@@ -145,7 +145,7 @@
   <widget class="QSpinBox" name="sbxScale">
    <property name="geometry">
     <rect>
-     <x>90</x>
+     <x>50</x>
      <y>150</y>
      <width>201</width>
      <height>30</height>
@@ -168,6 +168,25 @@
    </property>
    <property name="maximum">
     <number>10</number>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="cbxExpress">
+   <property name="geometry">
+    <rect>
+     <x>50</x>
+     <y>200</y>
+     <width>117</width>
+     <height>34</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Piboto [Goog]</family>
+     <pointsize>14</pointsize>
+    </font>
+   </property>
+   <property name="text">
+    <string>Express</string>
    </property>
   </widget>
  </widget>

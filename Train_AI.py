@@ -143,6 +143,7 @@ mMilesToNext = 0.0  # MTrip[1,0]
 mTripMiles = 0.0    # MtoSta[0.0]
 mToStnMiles = 0.0   # MtoSta[1,0]
 mDetMiles = 0.0
+mExpress = False
 
 mPtr = int(0)
 # mSNPtr = int(0)
@@ -171,6 +172,7 @@ lMilesToNext = 0.0  # LTrip[1,0]    Sub from
 lTripMiles = 0.0    # LtoSta[0,0]   Add to
 lToStnMiles = 0.0   # LtoSta[1,0]   Add to
 lDetMiles = 0.0
+lExpress = False
 
 lPtr = int(0)
 # lSNPtr = int(0)
@@ -2100,7 +2102,7 @@ class AppWindow(QMainWindow):
         TS_State[21] = TS_Off
 
         def CT_Shore():
-            global lPtr, Local_Dir, LScale, Local_NS
+            global lPtr, Local_Dir, LScale, Local_NS, lExpress
             
             dlgwin = QDialog()
             dlgC = Ui_dlgCTStPt()
@@ -2110,10 +2112,11 @@ class AppWindow(QMainWindow):
                 lPtr = dlgC.cbxCtShorStartPt.currentIndex()
                 Local_Dir = dlgC.cbxCtShoreDir.currentText()[0]
                 LScale = dlgC.sbxScale.value()
+                lExpress = dlgC.cbxExpress.isChecked()
                 Load_CT_Data(False)
 
         def AcelaStPt():
-            global mPtr, Main_Dir, MScale, Main_NS
+            global mPtr, Main_Dir, MScale, Main_NS, mExpress
 
             dlgwin = QDialog()
             dlgA = Ui_dlgAcelaStPt()
@@ -2123,6 +2126,7 @@ class AppWindow(QMainWindow):
                 mPtr = dlgA.cbxAcelaStartPt.currentIndex()
                 Main_Dir = dlgA.cbxAcelaDir.currentText()[0]
                 MScale = dlgA.sbxScale.value()
+                mExpress = dlgA.cbxExpress.isChecked()
                 Load_Acela_Data(False)
 
         def FileOpen(SorO):

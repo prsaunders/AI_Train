@@ -1,5 +1,5 @@
-from math import fabs
-from operator import lt
+# from math import fabs
+# from operator import lt
 import os
 import sys
 
@@ -17,7 +17,7 @@ from IOPi import IOPi
 # import threading
 from time import sleep, time, ctime  # , time
 from adafruit_servokit import ServoKit
-from psutil import cpu_times_percent
+# from psutil import cpu_times_percent
 
 #from Train_Hardware_Test_and_Setup import Save_Train_Inventory
 
@@ -365,7 +365,7 @@ def setSpdDir(l, n, t):
             timeMDir = "N"
         timeMD = n
         if timeM[n] != 0:
-            mainSpd = 128.56*timeM[n]**-1.422
+            mainSpd = 128.56*(timeM[n]*MScale)**-1.422
             if timeMDir != Main_Dir:
                 mainSpd *= -1
         else:

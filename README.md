@@ -1,13 +1,16 @@
-#Latest Update
+# Latest Update
 
 Version 0.1.1
 Adding Speed and Motion Direction routines
 
-#Introduction
+# Introduction
 
 This project simulates Acela (Boston to Washington, DC with stops along the way) and the CT Shoreline (New London to Stamford) routes as represented in a Lego train setup with Acela as the outer loop and CT Shoreline as the local loop. The goal is eventually to control the trains using Bluetooth autonomously. Currently using Raspberry Pi 4 to control the hardware (switches, signal lights, detectors) autonomously but train power is set manually via Lego Train Engineer or remote controllers. 
 
-#Hardware List
+![IMG_0090](https://user-images.githubusercontent.com/23269355/162502642-ce1c6b58-4e51-4ca6-b9ed-cd489883c7f7.jpg)
+
+
+# Hardware List
 
 * Raspberry Pi 4 Model B
     * Two display outputs
@@ -23,7 +26,7 @@ This project simulates Acela (Boston to Washington, DC with stops along the way)
 Switches/booms come off of PWM/Servo Shield (booms have the boom and boom light from TrixBrix)
 Detectors come off of the custom board
 
-#Setup
+# Setup
 1. Raspberry Pi
     1. Configure Raspberry Pi
     2. Setup Adafruit board (including I2C)

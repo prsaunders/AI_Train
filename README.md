@@ -9,6 +9,8 @@ This project simulates Acela (Boston to Washington, DC with stops along the way)
 
 ![IMG_0090](https://user-images.githubusercontent.com/23269355/162502642-ce1c6b58-4e51-4ca6-b9ed-cd489883c7f7.jpg)
 
+## Video of Trains and GUI
+[![Video of Trains and GUI](http://img.youtube.com/vi/ESV82uW2rAY)](https://youtu.be/ESV82uW2rAY "Video of Trains and GUI")
 
 # Hardware List
 

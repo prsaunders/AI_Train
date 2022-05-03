@@ -702,9 +702,9 @@
     <widget class="QLabel" name="lblMainStaNm">
      <property name="geometry">
       <rect>
-       <x>330</x>
+       <x>293</x>
        <y>90</y>
-       <width>360</width>
+       <width>446</width>
        <height>41</height>
       </rect>
      </property>
@@ -723,6 +723,9 @@
      <property name="frameShape">
       <enum>QFrame::NoFrame</enum>
      </property>
+     <property name="text">
+      <string>BWI Marshall Airport, MD(BWI)</string>
+     </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
      </property>
@@ -730,9 +733,9 @@
     <widget class="QLabel" name="lblMainLine">
      <property name="geometry">
       <rect>
-       <x>440</x>
+       <x>293</x>
        <y>10</y>
-       <width>140</width>
+       <width>446</width>
        <height>31</height>
       </rect>
      </property>
@@ -1185,7 +1188,7 @@
    <widget class="Line" name="lineRBar">
     <property name="geometry">
      <rect>
-      <x>808</x>
+      <x>839</x>
       <y>384</y>
       <width>11</width>
       <height>11</height>
@@ -2191,9 +2194,9 @@
    <widget class="QLabel" name="lblM_L">
     <property name="geometry">
      <rect>
-      <x>122</x>
+      <x>114</x>
       <y>294</y>
-      <width>41</width>
+      <width>47</width>
       <height>25</height>
      </rect>
     </property>
@@ -2216,9 +2219,9 @@
    <widget class="QLabel" name="lblL_L">
     <property name="geometry">
      <rect>
-      <x>122</x>
+      <x>114</x>
       <y>325</y>
-      <width>41</width>
+      <width>47</width>
       <height>25</height>
      </rect>
     </property>
@@ -2865,6 +2868,9 @@
       <width>0</width>
       <height>0</height>
      </size>
+    </property>
+    <property name="checkable">
+     <bool>false</bool>
     </property>
     <property name="autoRepeatInterval">
      <number>98</number>
@@ -5697,9 +5703,9 @@
    <widget class="QLabel" name="lblL_R">
     <property name="geometry">
      <rect>
-      <x>815</x>
+      <x>817</x>
       <y>325</y>
-      <width>41</width>
+      <width>47</width>
       <height>25</height>
      </rect>
     </property>
@@ -5722,9 +5728,9 @@
    <widget class="QLabel" name="lblM_R">
     <property name="geometry">
      <rect>
-      <x>815</x>
+      <x>817</x>
       <y>294</y>
-      <width>41</width>
+      <width>47</width>
       <height>25</height>
      </rect>
     </property>
@@ -6841,7 +6847,7 @@
    <widget class="QPushButton" name="pbLSS_2">
     <property name="geometry">
      <rect>
-      <x>491</x>
+      <x>480</x>
       <y>340</y>
       <width>16</width>
       <height>8</height>
@@ -7582,12 +7588,12 @@
      <bool>true</bool>
     </property>
    </widget>
-   <widget class="QPushButton" name="pbLStation">
+   <widget class="QPushButton" name="pbSDL">
     <property name="geometry">
      <rect>
       <x>460</x>
       <y>340</y>
-      <width>25</width>
+      <width>16</width>
       <height>12</height>
      </rect>
     </property>
@@ -7670,6 +7676,208 @@
     </property>
     <property name="flat">
      <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pbSDM">
+    <property name="geometry">
+     <rect>
+      <x>460</x>
+      <y>310</y>
+      <width>16</width>
+      <height>12</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>1</width>
+      <height>1</height>
+     </size>
+    </property>
+    <property name="sizeIncrement">
+     <size>
+      <width>1</width>
+      <height>1</height>
+     </size>
+    </property>
+    <property name="palette">
+     <palette>
+      <active>
+       <colorrole role="Button">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>85</red>
+          <green>170</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </active>
+      <inactive>
+       <colorrole role="Button">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>85</red>
+          <green>170</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </inactive>
+      <disabled>
+       <colorrole role="Button">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>85</red>
+          <green>170</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </disabled>
+     </palette>
+    </property>
+    <property name="font">
+     <font>
+      <weight>50</weight>
+      <bold>false</bold>
+      <kerning>false</kerning>
+     </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>BlankCursor</cursorShape>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
+    </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>0</width>
+      <height>0</height>
+     </size>
+    </property>
+    <property name="autoRepeatInterval">
+     <number>98</number>
+    </property>
+    <property name="flat">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pbWyeLD_3">
+    <property name="geometry">
+     <rect>
+      <x>809</x>
+      <y>382</y>
+      <width>16</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>1</width>
+      <height>1</height>
+     </size>
+    </property>
+    <property name="sizeIncrement">
+     <size>
+      <width>1</width>
+      <height>1</height>
+     </size>
+    </property>
+    <property name="palette">
+     <palette>
+      <active>
+       <colorrole role="Button">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </active>
+      <inactive>
+       <colorrole role="Button">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </inactive>
+      <disabled>
+       <colorrole role="Button">
+        <brush brushstyle="SolidPattern">
+         <color alpha="255">
+          <red>0</red>
+          <green>0</green>
+          <blue>255</blue>
+         </color>
+        </brush>
+       </colorrole>
+      </disabled>
+     </palette>
+    </property>
+    <property name="font">
+     <font>
+      <weight>50</weight>
+      <bold>false</bold>
+      <kerning>false</kerning>
+     </font>
+    </property>
+    <property name="cursor">
+     <cursorShape>BlankCursor</cursorShape>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
+    </property>
+    <property name="autoFillBackground">
+     <bool>true</bool>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>0</width>
+      <height>0</height>
+     </size>
+    </property>
+    <property name="autoRepeatInterval">
+     <number>98</number>
+    </property>
+    <property name="flat">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="Line" name="lineWyeL3_2">
+    <property name="geometry">
+     <rect>
+      <x>825</x>
+      <y>386</y>
+      <width>15</width>
+      <height>9</height>
+     </rect>
+    </property>
+    <property name="focusPolicy">
+     <enum>Qt::NoFocus</enum>
+    </property>
+    <property name="frameShadow">
+     <enum>QFrame::Plain</enum>
+    </property>
+    <property name="lineWidth">
+     <number>4</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
     </property>
    </widget>
    <zorder>lineL3</zorder>
@@ -7764,7 +7972,10 @@
    <zorder>lineM7_3</zorder>
    <zorder>lineL4_2</zorder>
    <zorder>pbLSN_3</zorder>
-   <zorder>pbLStation</zorder>
+   <zorder>pbSDL</zorder>
+   <zorder>pbSDM</zorder>
+   <zorder>pbWyeLD_3</zorder>
+   <zorder>lineWyeL3_2</zorder>
   </widget>
   <widget class="QStatusBar" name="statusBar">
    <property name="font">
@@ -7829,10 +8040,15 @@
     </property>
     <addaction name="actionPreferences"/>
    </widget>
-   <widget class="QMenu" name="menuTests">
+   <widget class="QMenu" name="menuTesting">
     <property name="title">
-     <string>Tests</string>
+     <string>Testing</string>
     </property>
+    <addaction name="actionMD_1"/>
+    <addaction name="actionMD_2"/>
+    <addaction name="actionMD_3"/>
+    <addaction name="actionMD_4"/>
+    <addaction name="separator"/>
     <addaction name="actionLD_1"/>
     <addaction name="actionLD_2"/>
     <addaction name="actionLD_3"/>
@@ -7840,18 +8056,17 @@
     <addaction name="separator"/>
     <addaction name="actionWD_L1"/>
     <addaction name="actionWD_L2"/>
-    <addaction name="actionWD_R1"/>
+    <addaction name="actionWD_L3"/>
+    <addaction name="actionWD_R"/>
     <addaction name="separator"/>
-    <addaction name="actionMD_1"/>
-    <addaction name="actionMD_2"/>
-    <addaction name="actionMD_3"/>
-    <addaction name="actionMD_4"/>
+    <addaction name="actionSTM"/>
+    <addaction name="actionSTL"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuStart_Points"/>
    <addaction name="menuStart_Trains"/>
    <addaction name="menuSettings"/>
-   <addaction name="menuTests"/>
+   <addaction name="menuTesting"/>
   </widget>
   <action name="actionSavCurSession">
    <property name="text">
@@ -8043,16 +8258,6 @@
     <string>DOWN</string>
    </property>
   </action>
-  <action name="actionWye2_L">
-   <property name="text">
-    <string>Wye2_L</string>
-   </property>
-  </action>
-  <action name="actionWye2_R">
-   <property name="text">
-    <string>Wye2_R</string>
-   </property>
-  </action>
   <action name="actionMainS">
    <property name="text">
     <string>South</string>
@@ -8076,6 +8281,38 @@
   <action name="actionAll_Signals_OFF">
    <property name="text">
     <string>Wye Det L2</string>
+   </property>
+  </action>
+  <action name="actionMD_1">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>MD_1</string>
+   </property>
+  </action>
+  <action name="actionMD_2">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>MD_2</string>
+   </property>
+  </action>
+  <action name="actionMD_3">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>MD_3</string>
+   </property>
+  </action>
+  <action name="actionMD_4">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>MD_4</string>
    </property>
   </action>
   <action name="actionLD_1">
@@ -8126,44 +8363,36 @@
     <string>WD_L2</string>
    </property>
   </action>
-  <action name="actionWD_R1">
+  <action name="actionWD_L3">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>WD_R1</string>
+    <string>WD_L3</string>
    </property>
   </action>
-  <action name="actionMD_1">
+  <action name="actionWD_R">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>MD_1</string>
+    <string>WD_R</string>
    </property>
   </action>
-  <action name="actionMD_2">
+  <action name="actionSTM">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>MD_2</string>
+    <string>STM</string>
    </property>
   </action>
-  <action name="actionMD_3">
+  <action name="actionSTL">
    <property name="checkable">
     <bool>true</bool>
    </property>
    <property name="text">
-    <string>MD_3</string>
-   </property>
-  </action>
-  <action name="actionMD_4">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>MD_4</string>
+    <string>STL</string>
    </property>
   </action>
  </widget>

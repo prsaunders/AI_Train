@@ -5,3 +5,11 @@ pyuic5 -o Configurator.py Configurator.ui
 pyuic5 -o Acela_Strt_Pt.py Acela_Strt_Pt.ui
 
 pyuic5 -o CT_Shore_Strt_Pt.py CT_Shore_Strt_Pt.ui
+
+pyuic5 -o FileSave.py FileSave.ui
+
+pyuic5 -o FileOpen.py FileOpen.ui
+
+pyuic5 -o FileSaveNew.py FileSave.ui
+
+pyuic5 -o FileOpenNew.py FileOpen.ui

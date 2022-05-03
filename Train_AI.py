@@ -2,9 +2,19 @@
 # from operator import lt
 import os
 import sys
+#import bluetooth
+# import socket
+
+# from Bluez import bluetooth
+
+# print( bluetoothctl("power","on") )
+# print( bluetoothctl("discoverable","on") )
+# print( bluetoothctl("pairable","on") )
+# print( bluetoothctl("agent","NoInputNoOutput") )
+# print( bluetoothctl("default-agent") )
 
 # from PyQt5 import QtWidgets, QtCore, QtGui
-# # from PyQt5 import qtbluetooth as QtBt
+# from PyQt5 import qtbluetooth as QtBt
 from PyQt5.QtGui import QPalette, QColor, QFont    #, QTextBlock
 from PyQt5.QtWidgets import QApplication, QMainWindow   #, QLabel, QGridLayout, QFormLayout, QTableWidgetItem
 # rom PyQt5.QtWidgets import QHBoxLayout, QPushButton, QVBoxLayout, QLineEdit
@@ -18,11 +28,17 @@ from IOPi import IOPi
 from time import sleep, time, ctime  # , time
 from adafruit_servokit import ServoKit
 # from psutil import cpu_times_percent
+HdwMsg = ""
 
 #from Train_Hardware_Test_and_Setup import Save_Train_Inventory
 
-kit = ServoKit(channels=16)
-# # from adafruit_servokit import PCA9685
+Servos = True
+try:
+    kit = ServoKit(channels=16)
+    # from adafruit_servokit import PCA9685
+except:
+    Servos = False
+    HdwMsg += "Switch control board missing/n"
 
 # from datetime import datetime
 
@@ -31,30 +47,44 @@ from Acela_Strt_Pt import Ui_dlgAcelaStPt
 from CT_Shore_Strt_Pt import Ui_dlgCTStPt
 from FileOpen import Ui_dlgFileOpen
 # from FileSave import Ui_dlgFileSave
-
+ 
 TrackInventoryVer = 0.0
 TrackStateVer = 0.0
 # CurSessionName = "CurSession"
 
+Simulate = False
+
+ALL_IO = 0
+
 # Train Detector settings
-TrnDet = IOPi(0x20)
-TrnDet.set_bus_direction(0xFFFF)
-TrnDet.set_port_pullups(0, 0xFF)
-TrnDet.set_port_pullups(1, 0xFF)
-TrnDet.invert_bus(0xFFFF)
+try:
+    TrnDet = IOPi(0x20)
+    TrnDet.set_bus_direction(0xFFFF)
+    TrnDet.set_port_pullups(0, 0xFF)
+    TrnDet.set_port_pullups(1, 0xFF)
+    TrnDet.invert_bus(0xFFFF)
+    # Train Signal Settings
+    TrnSigM = IOPi(0x21)
+    TrnSigM.set_bus_direction(0X0)
+    TrnSigM.invert_bus(0xFFFF)
+    ALL_IO += 1
+except:
+    HdwMsg += " Detector and Signal(1-8) Board is Missing/n"
 
-# Train Signal Settings
-TrnSigM = IOPi(0x21)
-TrnSigM.set_bus_direction(0X0)
-TrnSigM.invert_bus(0xFFFF)
-# Second Card
-TrnSigL = IOPi(0x22)
-TrnSigL.set_bus_direction(0X0)
-TrnSigL.invert_bus(0xFFFF)
-TrnSigW = IOPi(0x23)
-TrnSigW.set_bus_direction(0X0)
-TrnSigW.invert_bus(0xFFFF)
+try:
+    # Second Card
+    TrnSigL = IOPi(0x22)
+    TrnSigL.set_bus_direction(0X0)
+    TrnSigL.invert_bus(0xFFFF)
+    TrnSigW = IOPi(0x23)
+    TrnSigW.set_bus_direction(0X0)
+    TrnSigW.invert_bus(0xFFFF)
+    ALL_IO += 1
+except:
+    ALL_IO = ALL_IO
+    HdwMsg += "Signal (9-24) Board is Missing/n"
 
+    
 # global SV_Type, BM_State, TD_State, TS_Type
 
 # Switch Settings
@@ -73,7 +103,7 @@ Boom = "B"
 BM_Min = 1162
 BM_Min_Deg = 0  #30
 BM_Max = 1711
-BM_Max_Deg = 90 #128
+BM_Max_Deg = 85  #90 #128
 BM_Up = "U"
 BM_Down = "D"
 BM_Chan = 0
@@ -87,6 +117,7 @@ SV_State = [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "
 TD_Type = [" ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " ", " "]
 #global TD_State
 TD_State = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+TD_SimSt = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 TD_DBnc = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 TD_Chan = 0
 
@@ -121,6 +152,29 @@ TrainSIG = 8        # Signals 1 to 8    (8 max) More reqires another IO_Pi Bd + 
 greentrain = '90:84:2B:BE:F5:DD'
 yellowtrain = '90:84:28:22:FC:3F'
 loneranger = '90:84:2B:0C:22:02'
+ytport = 1
+gtport = 2
+
+# sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+# # hostMACAddress = '00:1f:e1:dd:08:3d' # The MAC address of a Bluetooth adapter on the server. The server might have multiple Bluetooth adapters.
+# # port = 3 # 3 is an arbitrary choice. However, it must match the port used by the client.
+# backlog = 1
+# backlog = 1
+# size = 1024
+# s = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+# s.bind((yellowtrain,ytport))
+# s.listen(backlog)
+# try:
+#     client, clientInfo = s.accept()
+#     while 1:
+#         data = client.recv(size)
+#         if data:
+#             print(data)
+#             client.send(data) # Echo back to client
+# except:	
+#     print("Closing socket")
+#     client.close()
+#     s.close()
 
 # Local and Main Stations and Mileage Info
 Main_NS = ['North Yard',
@@ -134,36 +188,41 @@ mTtl_Dn = [450, 450, 440, 410, 310, 270, 230, 220, 140, 110, 40, 30,0, 0]
 mTtl_Up = [0, 0, 10, 40, 140, 180, 220, 230, 310, 340, 410, 420, 450, 450]
 # mTtl_Dn = [446, 446, 436, 403, 302, 261, 226, 216, 135, 107, 40, 31, 0, 0]
 # mTtl_Up = [0, 0, 10, 43, 144, 185, 220, 230, 311, 339, 406, 415, 446, 446]
-Main_Dir = 'S'      # S = Moving South, N = Moving North
+Main_Dir = ""      # S = Moving South, N = Moving North
 MT_Pos = ""
-MScale = 10          # miles/loop
+MScale = 1          # miles/loop
 MainStation = ""
 MainMiles = int(0)  # MTrip[0,0]
-mMilesToNext = 0.0  # MTrip[1,0]
 mTripMiles = 0.0    # MtoSta[0.0]
 mToStnMiles = 0.0   # MtoSta[1,0]
 mDetMiles = 0.0
 mExpress = False
+mStrtSet = False
+mDestSet = -1
+mExpStnMiles = 0.0
 
 mPtr = int(0)
-# mSNPtr = int(0)
 mToSta = False
 mAtSta = False
 mLvgSta = False
+mBySta = False
+
+Main_Over_Local = True
 
 Local_NS = ['North Yard(S)',
             'New London(S)', 'Old Saybrook(S)', 'Westbrook(S)', 'Guilford(S)',
             'Branford(S)', 'State Street(S)', 'New Haven(S)', 'West Haven(M)',
             'Milford(M)', 'Stratford(M)', 'Bridgeport(M)', 'Fairfield Metro(M)',
             'Fairfield(M)', 'Westport(M)', 'South Norwalk(M)', 'Darien(M)', 
-            'Stamford(M)', 'South Yard(M)']
+            'Stamford(M)',
+            'South Yard(M)']
 Loc_M_NS = [0, 18, 5, 14, 9, 11, 1, 3, 7, 5, 4, 4, 2, 7, 3, 4, 5, 0]
 Loc_M_SN = [0, 5, 4, 3, 7, 2, 4, 4, 5, 7, 3, 1, 11, 9, 14, 5, 18, 0]
 lTtl_Dn = [102, 102, 84, 79, 65, 56, 45, 44, 41, 34, 29, 25, 21, 19, 12, 9, 5, 0, 0]
 lTtl_Up = [0, 0, 18, 23, 37, 46, 57, 58, 61, 68, 73, 77, 81, 83, 90, 93, 97, 102, 102]
 NLine = "Shore Line East"
 SLine = "Metro North"
-Local_Dir = 'S'     # S = Moving South, N = Moving North
+Local_Dir = ""     # S = Moving South, N = Moving North
 LT_Pos = ""
 LScale = 1          # miles/loop
 LocalStation = ""
@@ -173,14 +232,16 @@ lTripMiles = 0.0    # LtoSta[0,0]   Add to
 lToStnMiles = 0.0   # LtoSta[1,0]   Add to
 lDetMiles = 0.0
 lExpress = False
+lStrtSet = False
+lDestSet = -1
+lExpStnMiles = 0.0
 
 lPtr = int(0)
-# lSNPtr = int(0)
-
 lToSta = False  
 lAtSta = False
-lLeavingSta = False
+lLvgSta = False
 lToSiding = False
+lBySta = False
 
 oneMin = 600            # 1 Minute
 fiveMin = 3000          # 5 Minutes,  use at New Haven and New York for change of track
@@ -201,6 +262,7 @@ localSpd = 0.0
 # Sidings and Main to Local Flags
 yLeft1 = False
 yLeft2 = False
+yLeft3 = False
 yRight = False
 MoverL = False
 MLswitch = False
@@ -240,6 +302,7 @@ palAwaySta.setColor(QPalette.Button, Qt.darkCyan)  #QColor(85,170,255))
 
 Testing = False
 RunDets = 0
+WarningFlg = True
 
 # For use with Scope to see timing
 # TimeTst = True
@@ -255,7 +318,8 @@ RunDets = 0
 def TS_Blinker():
     global TS_Type, TS_State, TS_Time, TS_Ind
     
-    for i in range(len(TS_State)):
+    rng = 24
+    for i in range(rng):
         if TS_State[i] == TS_Yellow or TS_State[i] == TS_FlashR:
             t = int(TS_Time[i])
             if t == 0:
@@ -324,23 +388,10 @@ def Turn_Around(dir):
             Set_Switches("Y", "L")
         else:
             Set_Switches("Y", "R")
-    if yLeft1==False or yRight==False:
-        # Okay to use Wyes as Siding for Local Train
-        if dir == "S":
-            TS_State[10] = TS_Yellow
-            Set_Switches("L", "S")
-        else:
-            TS_State[14] = TS_Yellow
-            Set_Switches("L", "N")
 
 def SetLocToMain():
-    # Set Local back to Main
+    # Set Local back to Main from Spur
     Set_Switches("L", "M")
-    # MAIN LINE LIGHTS FOR WHEN DOUBLE CROSSOVER IN PLAY
-    # TS_State[0] = TS_Yellow
-    # TS_State[4] = TS_Red
-    # w.ui.pbMSS_1.setPalette(palYellow)
-    # w.ui.pbMSN_1.setPalette(palRed)
     TS_State[8] = TS_Yellow
     TS_State[12] = TS_Red
     w.ui.pbLSS_1.setPalette(palYellow)
@@ -348,6 +399,18 @@ def SetLocToMain():
     TS_State[18] = TS_Red
     w.ui.pbWyeLSO.setPalette(palRed)
     w.ui.pbWyeRSO.setPalette(palRed)
+
+# def boomCtrl():
+#     global yLeft1, yLeft2
+
+#     if yLeft1 or yLeft2:
+#         # lower Boom and start flasher
+#         Servo_Control(6,"D")
+#         TS_State[20] = TS_Yellow
+#     else:
+#         # raise Boom and stop flasher
+#         Servo_Control(6,"U")
+#         TS_State[20] = TS_Off
 
 def setSpdDir(l, n, t):
     global  timeMDir, timeMD, timeMPre, timeM, timeLDir, timeLD, timeLPre, timeL, \
@@ -372,6 +435,14 @@ def setSpdDir(l, n, t):
             mainSpd = 0.0
         # display  Main Speeds
         w.ui.mSpd.setText(str("%.1f" % mainSpd) + " " + timeMDir)
+        if Main_Dir == "" and mStrtSet == False:
+            Main_Dir = timeMDir
+            if Main_Dir=="S":
+                dir = "N"
+            else:
+                dir = "S"
+            # set opposite dir signals to all red
+            Set_Signals("M", dir, "R")
         if Main_Dir != timeMDir:
             w.ui.mSpd.setPalette(palRedTxt)
         else:
@@ -391,32 +462,195 @@ def setSpdDir(l, n, t):
             localSpd = 0.0
         # display Local Speeds
         w.ui.lSpd.setText(str("%.1f" % localSpd) + " " + timeLDir)
+        if Local_Dir == "" and lStrtSet == False and timeLDir != "":
+            Local_Dir = timeLDir
+            if Local_Dir=="S":
+                dir = "N"
+            else:
+                dir = "S"
+            # set opposite dir signals to all red
+            Set_Signals("L", dir, "R")
         if Local_Dir != timeLDir:
             w.ui.lSpd.setPalette(palRedTxt)
         else:
             w.ui.lSpd.setPalette(palBlack)
 
+def mToStation():
+    global  mToSta, mAtSta, mTripMiles, MainMiles, mToStnMiles, lpCtr, staDelay, \
+            ctLps, mPtr, mExpress, mTurnAround, mTurned, Main_Dir, mDestSet, \
+            mExpStnMiles
+
+    mToSta = False
+    mAtSta = True
+    w.ui.lblMain_Arriv.setText("Arrived")
+    w.ui.pbSDL.setPalette(palAtSta)
+    if mTurnAround and mTurned:
+        mTurnAround = False
+        mTurned = False
+        mTripMiles = 0.0
+        if Main_Dir == "S":
+            # mPtr+=1
+            MainMiles = mTtl_Dn[mPtr]
+            if mExpress:
+                mToStnMiles = MainMiles
+            else:
+                mToStnMiles = Main_M_NS[mPtr]
+        else:
+            # mPtr-=1
+            MainMiles = mTtl_Up[mPtr]
+            if mExpress:
+                mToStnMiles = MainMiles
+            else:
+                mToStnMiles = Main_M_NS[mPtr]
+        # displayMainMiles()
+    # else:
+    # start at station timer
+    lpCtr = int(0)
+    if mPtr == 6:       # New York
+        staDelay = fiveMin
+    else:
+        staDelay = oneMin/5     # to speed up for testing
+    ctLps = True
+    if Main_Dir == "S":
+        w.ui.lblMainStaNm.setText(Main_NS[mPtr])
+        w.ui.lblMain_Arriv.setText("Arrived")
+        if mPtr < (len(Main_NS)-2):
+            if mExpress:
+                w.ui.lblMain_Dest.setText(Main_NS[len(Main_NS)-2])
+            else:
+                w.ui.lblMain_Dest.setText(Main_NS[mDestSet])
+        else:
+            w.ui.lblMain_Dest.setText("")
+            # start turn-around process
+            mTurnAround = True
+            Turn_Around(Main_Dir)
+        if mExpress:
+            mToStnMiles = mTtl_Dn[mPtr]
+            mExpStnMiles = Main_M_NS[mPtr]
+        else:
+            mToStnMiles = Main_M_NS[mPtr]
+    else:
+        # Main_Dir == N
+        w.ui.lblMainStaNm.setText(Main_NS[mPtr])
+        w.ui.lblMain_Arriv.setText("Arrived")
+        if mPtr>1 and mPtr < (len(Main_NS)-1):
+            if mPtr < (len(Main_NS)-2):
+                w.ui.lblMain_Arriv.setText(Main_NS[mPtr+1])
+            if mExpress:
+                w.ui.lblMain_Dest.setText(Main_NS[1])
+            else:
+                mDestSet = mPtr-1
+                w.ui.lblMain_Dest.setText(Main_NS[mDestSet])
+        else:
+            # start turn-around process
+            mTurnAround = True
+            Turn_Around(Main_Dir)
+        if mExpress:
+            mToStnMiles = mTtl_Up[mPtr]
+            mExpStnMiles = Main_M_NS[mPtr]
+        else:
+            mToStnMiles = Main_M_NS[mPtr]
+    displayMainMiles()
+
+def mLvgStation():
+    global  mAtSta, mLvgSta, mExpress, mPtr, mToStnMiles, \
+            mExpStnMiles, mDestSet, mBySta
+
+    mAtSta = False
+    mLvgSta = True
+    mBySta = False
+    w.ui.pbSDL.setPalette(palBlnk)
+    w.ui.lblMain_Arriv.setText("Departed")
+    if Main_Dir == "S":
+        mPtr += 1
+        if mExpress:
+            w.ui.lblMainStaNm.setText(Main_NS[len(Main_NS)-2])
+        else:
+            w.ui.lblMainStaNm.setText(Main_NS[mPtr])
+        if mPtr < (len(Main_M_NS)-1):
+            w.ui.lblMain_Arriv.setText(Main_NS[mPtr-1])
+            if mPtr<(len(Main_NS)-2):
+                if mExpress:
+                    w.ui.lblMain_Dest.setText(Main_NS[len(Main_NS)-2])
+                else:
+                    mDestSet = mPtr+1
+                    w.ui.lblMain_Dest.setText(Main_NS[mDestSet])
+            else:
+                w.ui.lblMain_Dest.setText("")
+            if mExpress:
+                mToStnMiles = mTtl_Dn[mPtr]
+                mExpStnMiles = Main_M_NS[mPtr-1]
+            else:
+                mToStnMiles = Main_M_NS[mPtr-1]
+            displayMainMiles()
+        # else:
+        #     # start Main Turn-around process
+        #     mTurnAround = True
+        #     Turn_Around(Main_Dir)
+    else:
+        # main Direction == N
+        mPtr -= 1
+        w.ui.lblMainStaNm.setText(Main_NS[mPtr])
+        if mPtr>=1:
+            w.ui.lblMain_Arriv.setText(Main_NS[mPtr+1])
+            if mPtr<(len(Main_NS)-1) :
+                if mExpress:
+                    w.ui.lblMain_Dest.setText(Main_NS[1])
+                else:
+                    mDestSet = mPtr-1
+                    w.ui.lblMain_Dest.setText(Main_NS[mDestSet])
+            else:
+                w.ui.lblMain_Arriv.setText("")
+            if mExpress:
+                mToStnMiles = mTtl_Dn[1]
+                mExpStnMiles = Main_M_NS[mPtr]
+            else:
+                mToStnMiles = Main_M_NS[mPtr]
+        else:
+            # in North Yard
+            # mMilesToNext = 0.0    # NOT DISPLAYED
+            mToStnMiles = 0.0
+        displayMainMiles()
+    # if mPtr == 0 or mPtr == len(Main_NS):
+    #     # time to turn around and go in opppsite direction
+    #     if Main_Dir == "S":
+    #         Main_Dir = "N"
+    #     else:
+    #         Main_Dir = "S"
+    # if Main_Dir == "S":
+    #     mPtr += 1
+    #     w.ui.lblMainStaNm.setText(Main_NS[mPtr])
+    # else:
+    #     mPtr -= 1
+    #     w.ui.lblMainStaNm.setText(Main_NS[mPtr])
+    # mToStnMiles = Main_M_NS[mPtr]
+    # displayMainMiles()
 
 def ReadDetectors():
     global  TD_Type, TD_State, mPtr, lPtr, Main_Dir, mTurnAround, Local_Dir, \
             MainMiles, LocalMiles, mToStnMiles, lToStnMiles, mTripMiles, TS_State, \
-            lTripMiles, mMilesToNext, lMilesToNext, mLvgSta,  mDetMiles, lDetMiles, \
-            Testing, MT_Pos, LT_Pos, RunDets, mToSta, mAtSta, lpCtr, ctLps, \
-            lToSta, lAtSta, yLeft1, yLeft2, yRight, lp1, MoverL, lsiding, lTurnAround, \
+            lTripMiles, mLvgSta,  mDetMiles, mExpStnMiles, lDetMiles, lExpStnMiles, \
+            Testing, MT_Pos, LT_Pos, RunDets, mToSta, mAtSta, mBySta, lpCtr, ctLps, \
+            lToSta, lAtSta, yLeft1, yLeft2, yLeft3, yRight, lp1, MoverL, lsiding, lTurnAround, \
             MLswitch, mTurned, lTurned, staDelay, oneMin, fiveMin, lToSiding,  \
-            timeMDir, timeMD, timeMPre, timeM, timeLDir, timeLD, timeLPre, timeL    # , Set_Switches
+            timeMDir, timeMD, timeMPre, timeM, timeLDir, timeLD, timeLPre, timeL, \
+            mStrtSet, lStrtSet, mDestSet, lDestSet, lBySta, lLvgSta, Simulate   # , Set_Switches
                
-    if RunDets != 0:
+    if ALL_IO >= 1 and RunDets != 0:
         det = 0
         for i in range(len(TD_Type)):
             lohi = False
             hilo = False
-            det = TrnDet.read_pin(i+1)
+            if Simulate:
+                det = TD_SimSt[i]
+            else:
+                det = TrnDet.read_pin(i+1)
             if det != TD_State[i] and TD_DBnc[i] == 0:
                 TD_State[i] = det
+                TD_DBnc[i] = 1
                 if det == 1:
                     lohi = True
-                    TD_DBnc[i] = 1
+                    # TD_DBnc[i] = 1
                 else:
                     hilo = True
                 if TD_Type[i] == "D":
@@ -497,9 +731,9 @@ def ReadDetectors():
                                 if lp1:
                                     if MoverL and mLvgSta and (Main_Dir == "S"):
                                         if hilo:
-                                            # return main sw to MAIN
+                                            # return MAIN sws to Main from Spur
                                             Set_Switches("M", "M")
-                                            # Return Local so it can come back onto Local Loop
+                                            # Return Local so it can come back onto Local Loop from spur
                                             if Local_Dir == "S":
                                                 TS_State[10] = TS_Yellow
                                                 Set_Switches("L", "S")
@@ -569,52 +803,53 @@ def ReadDetectors():
                             # Main Loop Mileage
                             if lp1:
                                 if mToSta == False:  # if MoverL == False:      #  and mToSta == False:
-                                    if (mPtr != 0 and mPtr != len(Main_NS)):
+                                    if (mPtr > 0 and mPtr < len(Main_NS)):
                                         mToStnMiles -= mDetMiles
                                         mTripMiles += mDetMiles
-                                        mMilesToNext -= mDetMiles
                                         displayMainMiles()
-                                if (mToStnMiles < MScale) and (mToSta == False):   #  and (MoverL == False):
-                                    # MAIN needs to go to the station, give Local chance to go into siding
-                                    if yLeft1==False or yRight==False:
-                                        # Okay to use Wyes as Siding for Local Train
-                                        MoverL = True
-                                        mToSta = True
-                                        if Main_Dir == "S":
-                                            TS_State[0] = TS_Red
-                                        else:
-                                            TS_State[4] = TS_Red
+                                if (mToStnMiles < MScale) and (mToSta == False):    # and (mDestSet != 0):   #  and (MoverL == False):
+                                    if Main_Over_Local:
+                                        # MAIN needs to go to the station
+                                        # give Local chance to go into siding
+                                        if yLeft1==False or yRight==False:
+                                            # Okay to use Wyes as Siding for Local Train
+                                            MoverL = True
+                                            mToSta = True
+                                            # stop MAIN before entering cross-over
+                                            if Main_Dir == "S":
+                                                TS_State[0] = TS_Red
+                                            else:
+                                                TS_State[4] = TS_Red
 
-                                        if Local_Dir == "S":
-                                            TS_State[10] = TS_Yellow
-                                            Set_Switches("L", "S")
-                                        else:
-                                            TS_State[14] = TS_Yellow
-                                            Set_Switches("L", "N")
+                                            # set switches to allow LOCAL to go into siding
+                                            if Local_Dir == "S":
+                                                TS_State[10] = TS_Yellow
+                                                Set_Switches("L", "S")
+                                            else:
+                                                TS_State[14] = TS_Yellow
+                                                Set_Switches("L", "N")
 
-                                        if yLeft1 == False:
-                                            Set_Switches("Y", "L")
-                                        else:
-                                            Set_Switches("Y", "R")
+                                            # set WYE for LOCAL
+                                            if yLeft1 == False:
+                                                Set_Switches("Y", "L")
+                                            else:
+                                                Set_Switches("Y", "R")
 
-                                        TS_State[18] = TS_Red
-                                        w.ui.pbWyeLSO.setPalette(palRed)
-                                        w.ui.pbWyeRSO.setPalette(palRed)
+                                            TS_State[18] = TS_Red
+                                            w.ui.pbWyeLSO.setPalette(palRed)
+                                            w.ui.pbWyeRSO.setPalette(palRed)
 
-                                        lToSiding = True
-                                        # set local lights of travel to yellow
-                                        
-                                        # wait for local to go into turn off
-                                        # Look for Det 8/9 or 10 to go true
+                                            lToSiding = True
+                                            # set local lights of travel to yellow
+                                            # wait for local to go into turn off
+                                            # Look for Det 8/9 or 10 to go true?????
                                     else:
                                         # Main and Local change loops
                                         MLswitch = True
-
                                         if ((MT_Pos == "3N") or (MT_Pos == "2S")) and (mToStnMiles <= mDetMiles):
                                             # Ready to head to station on inner Loop
-                                            w.ui.lblMain_Arriv.text = "Arriving"
+                                            w.ui.lblMain_Arriv.setText("Arriving")
                                             TS_State[21]=TS_On      # turn on station lights
-
                                             # time to set switches and signals to allow 
                                             # MAIN and LOCAL to switch LOOPs
                                             if Local_Dir == Main_Dir:
@@ -629,7 +864,14 @@ def ReadDetectors():
                                                 else:
                                                     TS_State[0] = TS_Red
                                                     TS_State[3] = TS_Red
-                                if MoverL and mToSta and lsiding:
+                                if mExpress and MoverL == False and mToSta == False:
+                                    mExpStnMiles -= mDetMiles
+                                    if mExpStnMiles < MScale and mBySta == False:
+                                        w.ui.lblMainStaNm.setText(Main_NS[mPtr])
+                                        TS_State[21]=TS_On  # turn on station light
+                                        if MoverL == False:
+                                            mBySta = True                   
+                                if MoverL and mToSta and lsiding and mStrtSet:
                                     TS_State[21]=TS_On      # turn on station light
                             if MoverL and mToSta:
                                 if lsiding:
@@ -942,58 +1184,75 @@ def ReadDetectors():
                                     if (lPtr != 0 and lPtr != len(Local_NS)):
                                         lToStnMiles -= lDetMiles
                                         lTripMiles += lDetMiles
-                                        lMilesToNext -= lDetMiles
+                                        # lMilesToNext -= lDetMiles# NOT DISPLAYED
                                         displayLocalMiles()
-
-                                    if (lToStnMiles < LScale):
+                                    if lExpress:
+                                        lExpStnMiles -= lDetMiles
+                                        if lExpStnMiles < LScale and lBySta == False:
+                                            w.ui.lblLocStaNm.setText(CleanCt(Local_NS[lPtr], ""))
+                                            TS_State[21]=TS_On  # turn on station light
+                                            lBySta = True
+                                    if (lToStnMiles < LScale) and lStrtSet:
                                         # Ready to head to station on inner Loop
                                         w.ui.lblLocal_Arriv.setText("Arriving")
                                         lToSta = True
-                                        TS_State[21]=TS_On
-                                # else:
-                                #     if mTurnAround:
-                                #         # # Main over Local
-                                #         # if (mPtr != 0 and mPtr != len(Main_NS)):
-                                #         #     mToStnMiles -= mDetMiles
-                                #         #     mTripMiles += mDetMiles
-                                #         #     mMilesToNext -= mDetMiles
-                                #         #     displayMainMiles()
-                                #         # else:
-                                #         # MAIN turn-arround
-                                #         if Main_Dir == "S":
-                                #             mPtr += 1
-                                #         else:
-                                #             mPtr -= 1
-                                #         w.ui.lblMainStaNm.setText(Main_NS[mPtr])
-                                #     if (mToStnMiles < MScale):
-                                #         # Ready to head to station on inner Loop
-                                #         w.ui.lblMain_Arriv.setText("Arriving")
-                                #         # set Signal into station to RED
-                                #         mToSta = True
-                                #         TS_State[21]=TS_On
+                                        TS_State[21]=TS_On  # turn on station light
                     elif i < 12:
                         # Wye Detectors
                         if i == 8:
                             if TD_State[i]:
+                                TD_DBnc[i] = 10
                                 yLeft1 = True
                                 w.ui.pbWyeLD_1.setPalette(palBlue)
                                 TS_State[17] = TS_Red
                                 w.ui.pbWyeLSI.setPalette(palRed)
-                                # lower Boom and start flasher
-                                Servo_Control(6,"D")
-                                TS_State[20] = TS_Yellow
                             else:
                                 yLeft1 = False
                                 w.ui.pbWyeLD_1.setPalette(palBlank)
-                                # raise Boom and stop flasher
-                                Servo_Control(6,"U")
-                                TS_State[20] = TS_Off
                                 if yLeft2 == False:
                                     TS_State[17] = TS_Green
                                     w.ui.pbWyeLSI.setPalette(palGreen)
                                 else:
                                     TS_State[17] = TS_Yellow
                                     w.ui.pbWyeLSI.setPalette(palYellow)
+                        elif i == 9:                 
+                            if TD_State[i]:
+                                TD_DBnc[i] = 10
+                                yLeft2 = True
+                                w.ui.pbWyeLD_2.setPalette(palBlue)
+                            else:
+                                yLeft2 = False
+                                w.ui.pbWyeLD_2.setPalette(palBlank)
+                                # w.ui.pbWyeLD_2.setPalette(palBlank)
+                                # if yLeft1 == False:
+                                #     TS_State[17] = TS_Green
+                                #     w.ui.pbWyeLSI.setPalette(palGreen)
+                                # else:
+                                #     TS_State[17] = TS_Red
+                                #     w.ui.pbWyeLSI.setPalette(palRed)
+                        elif i == 10:
+                            if TD_State[i]:
+                                yRight = True
+                                w.ui.pbWyeRD.setPalette(palBlue)
+                                TS_State[16] = TS_Red
+                                w.ui.pbWyeRSI.setPalette(palRed)
+                            else:
+                                w.ui.pbWyeRD.setPalette(palBlank)
+                                TS_State[16] = TS_Green
+                                w.ui.pbWyeRSI.setPalette(palGreen)
+                        elif i == 11:
+                            if TD_State[i]:
+                                yLeft3 = True
+                                w.ui.pbWyeLD_3.setPalette(palBlue)
+                                if yLeft1 == False:
+                                    TS_State[17] = TS_Green
+                                    w.ui.pbWyeLSI.setPalette(palGreen)
+                                else:
+                                    TS_State[17] = TS_Red
+                                    w.ui.pbWyeLSI.setPalette(palRed)
+                            else:
+                                yLeft3 = False
+                                w.ui.pbWyeLD_3.setPalette(palBlank)
                             if MoverL and lToSiding:
                                 if lohi:
                                     lsiding = True
@@ -1003,7 +1262,7 @@ def ReadDetectors():
                                     TS_State[18] = TS_Red
                                     w.ui.pbWyeLSO.setPalette(palRed)
                                     w.ui.pbWyeRSO.setPalette(palRed)
-                                    # set Main for double-cross
+                                    # set Main for double-cross to /from local Loop
                                     Set_Switches("M", "S")
                                     Set_Switches("M", "N")
                                     if Main_Dir == "S":
@@ -1024,6 +1283,8 @@ def ReadDetectors():
                                         TS_State[12] = TS_Red
                                         w.ui.pbLSS_1.setPalette(palYellow)
                                         w.ui.pbLSN_1.setPalette(palRed)
+                                    # turn on Station Light for Main Line
+                                    TS_State[21]=TS_On
                             elif lTurnAround:
                                 Set_Switches("L", "M")
                                 if Local_Dir == "N":
@@ -1033,48 +1294,13 @@ def ReadDetectors():
                                     TS_State[14] = TS_Red
                                     Set_Switches("L", "N")
                                 TS_State[18] = TS_Yellow
-                        elif i == 9:                 
-                            if TD_State[i]:
-                                yLeft2 = True
-                                w.ui.pbWyeLD_2.setPalette(palBlue)
-                                # lower Boom and start flasher
-                                Servo_Control(6,"D")
-                                TS_State[20] = TS_Yellow
-                                if yLeft1 == False:
-                                    TS_State[17] = TS_Yellow
-                                    w.ui.pbWyeLSI.setPalette(palYellow)
-                                else:
-                                    TS_State[17] = TS_Red
-                                    w.ui.pbWyeLSI.setPalette(palRed)
-                            else:
-                                yLeft2 = False
-                                w.ui.pbWyeLD_2.setPalette(palBlank)
-                                # raise Boom and stop flasher
-                                Servo_Control(6,"U")
-                                TS_State[20] = TS_Off
-                                if yLeft1 == False:
-                                    TS_State[17] = TS_Green
-                                    w.ui.pbWyeLSI.setPalette(palGreen)
-                                else:
-                                    TS_State[17] = TS_Red
-                                    w.ui.pbWyeLSI.setPalette(palRed)
-                        elif i == 10:
-                            if TD_State[i]:
-                                yRight = True
-                                w.ui.pbWyeRD.setPalette(palBlue)
-                                TS_State[16] = TS_Red
-                                w.ui.pbWyeRSI.setPalette(palRed)
-                            else:
-                                w.ui.pbWyeRD.setPalette(palBlank)
-                                TS_State[16] = TS_Green
-                                w.ui.pbWyeRSI.setPalette(palGreen)
-                        else:
-                                return
                 elif TD_Type[i] == "S":
                     # if lp1:
-                    if TD_State[11]:
+                    if i == 12:
                         # At the Station detected
                         if lohi:
+                            if Simulate:
+                                w.ui.pbSDL.setPalette(palAtSta)
                             if lAtSta:
                                 if ctLps:
                                     ctLps = False
@@ -1089,21 +1315,25 @@ def ReadDetectors():
                                     lToSta = False
                                     lAtSta = True
                                     w.ui.lblLocal_Arriv.setText("Arrived")
-                                    w.ui.pbLStation.setPalette(palAtSta)
+                                    w.ui.pbSDL.setPalette(palAtSta)
                                     if lTurnAround and lTurned:
                                         lTurnAround = False
                                         lTurned = False
                                         lTripMiles = 0.0
                                         if Local_Dir == "S":
-                                            lPtr+=1
+                                            # lPtr+=1
                                             LocalMiles = lTtl_Dn[lPtr]
-                                            lToStnMiles = Loc_M_NS[lPtr]
-                                            lMilesToNext = float(Loc_M_NS[lPtr])
+                                            if lExpress:
+                                                lToStnMiles = LocalMiles
+                                            else:
+                                                lToStnMiles = Loc_M_NS[lPtr]
                                         else:
-                                            lPtr-=1
+                                            # lPtr-=1
                                             LocalMiles = lTtl_Up[lPtr]
+                                        if lExpress:
+                                            lToStnMiles = LocalMiles
+                                        else:
                                             lToStnMiles = Loc_M_NS[lPtr]
-                                            lMilesToNext = float(Loc_M_NS[lPtr-1])
                                         # displayLocalMiles()
                                     # else:
                                     # start at station timer
@@ -1117,14 +1347,19 @@ def ReadDetectors():
                                         w.ui.lblLocStaNm.setText(CleanCt(Local_NS[lPtr], "y"))
                                         w.ui.lblLocal_Arriv.setText("Arrived")      #  CleanCt(Local_NS[lPtr-1],""))
                                         if lPtr < (len(Local_NS)-2):
-                                            w.ui.lblLocal_Dest.setText(CleanCt(Local_NS[lPtr+1],""))
-                                            lMilesToNext = float(Loc_M_NS[lPtr])
+                                            if lExpress:
+                                                w.ui.lblLocal_Dest.setText(CleanCt(Local_NS[len(Local_NS)-2],""))
+                                            else:
+                                                w.ui.lblLocal_Dest.setText(CleanCt(Local_NS[lPtr+1],""))
                                         else:
                                             w.ui.lblLocal_Dest.setText("")
                                             # start turn-around process
                                             lTurnAround = True
                                             Turn_Around(Local_Dir)
-                                        lToStnMiles = Loc_M_NS[lPtr]
+                                        if lExpress:
+                                            lToStnMiles = lTtl_Dn[lPtr]
+                                        else:
+                                            lToStnMiles = Loc_M_NS[lPtr]
                                     else:
                                         # Local_Dir == N
                                         w.ui.lblLocStaNm.setText(CleanCt(Local_NS[lPtr],"y"))
@@ -1132,143 +1367,55 @@ def ReadDetectors():
                                         if lPtr>1 and lPtr < (len(Local_NS)-1):
                                             if lPtr < (len(Local_NS)-2):
                                                 w.ui.lblLocal_Arriv.setText(CleanCt(Local_NS[lPtr+1],""))
-                                            w.ui.lblLocal_Dest.setText(CleanCt(Local_NS[lPtr-1],""))
-                                            lMilesToNext = float(Loc_M_NS[lPtr-1])
+                                            if lExpress:
+                                                w.ui.lblLocal_Dest.setText(CleanCt(Local_NS[1],""))
+                                            else:
+                                                w.ui.lblLocal_Dest.setText(CleanCt(Local_NS[lPtr-1],""))
                                         else:
                                             # start turn-around process
                                             lTurnAround = True
                                             Turn_Around(Local_Dir)
-                                        lToStnMiles = Loc_M_NS[lPtr-1]
+                                        if lExpress:
+                                            lToStnMiles = lTtl_Up[lPtr]
+                                        else:
+                                            lToStnMiles = Loc_M_NS[lPtr]
                                     displayLocalMiles()
                                 elif mToSta and lsiding:
-                                    mToSta = False
-                                    mAtSta = True
-                                    w.ui.lblMain_Arriv.setText("Arrived")
-                                    w.ui.pbLStation.setPalette(palAtSta)
-                                    if mTurnAround and mTurned:
-                                        mTurnAround = False
-                                        mTurned = False
-                                        mTripMiles = 0.0
-                                        if Main_Dir == "S":
-                                            # mPtr+=1
-                                            MainMiles = mTtl_Dn[mPtr]
-                                            mToStnMiles = Main_M_NS[mPtr]
-                                            mMilesToNext = float(Main_M_NS[mPtr])
-                                        else:
-                                            # mPtr-=1
-                                            MainMiles = mTtl_Up[mPtr]
-                                            mToStnMiles = Main_M_SN[mPtr]
-                                            mMilesToNext = float(Main_M_NS[mPtr-1])
-                                        # displayMainMiles()
-                                    # else:
-                                    # start at station timer
-                                    lpCtr = int(0)
-                                    if mPtr == 6:       # New York
-                                        staDelay = fiveMin
-                                    else:
-                                        staDelay = oneMin/5     # to speed up for testing
-                                    ctLps = True
-                                    if Main_Dir == "S":
-                                        # mPtr+=1
-                                        w.ui.lblMainStaNm.setText(Main_NS[mPtr])
-                                        w.ui.lblMain_Arriv.setText("Arrived")
-                                        if mPtr < (len(Main_NS)-2):
-                                            w.ui.lblMain_Dest.setText(Main_NS[mPtr+1])
-                                            mMilesToNext = float(Main_M_NS[mPtr])
-                                        else:
-                                            w.ui.lblMain_Dest.setText("")
-                                            # start turn-around process
-                                            mTurnAround = True
-                                            Turn_Around(Main_Dir)
-                                        mToStnMiles = Main_M_NS[mPtr]
-                                    else:
-                                        # Main_Dir == N
-                                        # mPtr-=1
-                                        w.ui.lblMainStaNm.setText(Main_NS[mPtr])
-                                        w.ui.lblMain_Arriv.setText("Arrived")
-                                        if mPtr>1 and mPtr < (len(Main_NS)-1):
-                                            if mPtr < (len(Main_NS)-2):
-                                                w.ui.lblMain_Arriv.setText(Main_NS[mPtr+1])
-                                            w.ui.lblMain_Dest.setText(Main_NS[mPtr-1])
-                                            mMilesToNext = float(Main_M_NS[mPtr-1])
-                                        else:
-                                            # start turn-around process
-                                            mTurnAround = True
-                                            Turn_Around(Main_Dir)
-                                        mToStnMiles = Main_M_NS[mPtr-1]
-                                    displayMainMiles()
-                    else:
+                                    mToStation()
                         if hilo:
+                            if Simulate:
+                                w.ui.pbSDL.setPalette(palBlnk)
                             if (mAtSta or lAtSta):
                                 # leaving station
-                                if mAtSta:
-                                    mAtSta = False
-                                    mLvgSta = True
-                                    w.ui.pbLStation.setPalette(palAwaySta)
-                                    w.ui.lblMain_Arriv.setText("Departed")
-                                    if Main_Dir == "S":
-                                        mPtr += 1
-                                        w.ui.lblMainStaNm.setText(Main_NS[mPtr])
-                                        if mPtr < (len(Main_M_NS)-1):
-                                            w.ui.lblMain_Arriv.setText(Main_NS[mPtr-1])
-                                            if mPtr<(len(Main_NS)-2):
-                                                w.ui.lblMain_Dest.setText(Main_NS[mPtr+1])
-                                                mMilesToNext = float(Main_M_NS[mPtr])
-                                            else:
-                                                w.ui.lblMain_Dest.setText("")
-                                            mToStnMiles = Main_M_NS[mPtr-1]
-                                            displayMainMiles()
-                                        # else:
-                                        #     # start Main Turn-around process
-                                        #     mTurnAround = True
-                                        #     Turn_Around(Main_Dir)
-                                    else:
-                                        # main Direction == N
-                                        mPtr -= 1
-                                        w.ui.lblMainStaNm.setText(Main_NS[mPtr])
-                                        if mPtr>=1:
-                                            w.ui.lblMain_Arriv.setText(Main_NS[mPtr+1])
-                                            if mPtr<(len(Main_NS)-1) :
-                                                w.ui.lblMain_Dest.setText(Main_NS[mPtr-1])
-                                                mMilesToNext = float(Main_M_NS[mPtr])
-                                            else:
-                                                w.ui.lblMain_Arriv.setText("")
-                                            mToStnMiles = Main_M_NS[mPtr]
-                                        else:
-                                            # in North Yard
-                                            mMilesToNext = 0.0
-                                            mToStnMiles = 0.0
-                                        displayMainMiles()
-                                    # if mPtr == 0 or mPtr == len(Main_NS):
-                                    #     # time to turn around and go in opppsite direction
-                                    #     if Main_Dir == "S":
-                                    #         Main_Dir = "N"
-                                    #     else:
-                                    #         Main_Dir = "S"
-                                    # if Main_Dir == "S":
-                                    #     mPtr += 1
-                                    #     w.ui.lblMainStaNm.setText(Main_NS[mPtr])
-                                    # else:
-                                    #     mPtr -= 1
-                                    #     w.ui.lblMainStaNm.setText(Main_NS[mPtr])
-                                    # mToStnMiles = Main_M_NS[mPtr]
-                                    # displayMainMiles()
+                                if mAtSta and Main_Over_Local:
+                                    mLvgStation()
                                 elif lAtSta:
                                     lAtSta = False
-                                    w.ui.pbLStation.setPalette(palAwaySta)
+                                    lLvgSta = True
+                                    w.ui.pbSDL.setPalette(palBlnk)
                                     w.ui.lblLocal_Arriv.setText("Departed")
                                     lToStnMiles = 0.0
                                     if Local_Dir == "S":
                                         lPtr += 1
-                                        w.ui.lblLocStaNm.setText(CleanCt(Local_NS[lPtr], "y"))
+                                        if lExpress:
+                                            w.ui.lblLocStaNm.setText(CleanCt(Local_NS[len(Local_NS)-2], "y"))
+                                        else:
+                                            w.ui.lblLocStaNm.setText(CleanCt(Local_NS[lPtr], "y"))
                                         if lPtr < (len(Local_NS) - 1):
                                             w.ui.lblLocal_Arriv.setText(CleanCt(Local_NS[lPtr-1],""))
                                             if lPtr < (len(Local_NS)-2):
-                                                w.ui.lblLocal_Dest.setText(CleanCt(Local_NS[lPtr+1],""))
-                                                lMilesToNext = float(Loc_M_NS[lPtr])
+                                                if lExpress:
+                                                    w.ui.lblLocal_Dest.setText(CleanCt(Local_NS[len(Local_NS)-2],""))
+                                                else:
+                                                    lDestSet = lPtr+1
+                                                    w.ui.lblLocal_Dest.setText(CleanCt(Local_NS[lDestSet],""))
                                             else:
                                                 w.ui.lblLocal_Dest.setText("")
-                                            lToStnMiles = Loc_M_NS[lPtr-1]      # was lPtr
+                                            if lExpress:
+                                                lToStnMiles = lTtl_Dn[1]
+                                                lExpStnMiles = Loc_M_NS[lPtr-1]
+                                            else:
+                                                lToStnMiles = Loc_M_NS[lPtr-1]
                                             displayLocalMiles()
                                         # else:
                                         #     # start turn-around process
@@ -1280,15 +1427,21 @@ def ReadDetectors():
                                         w.ui.lblLocStaNm.setText(CleanCt(Local_NS[lPtr],"y"))
                                         if lPtr>=1:
                                             w.ui.lblLocal_Arriv.setText(CleanCt(Local_NS[lPtr+1],""))
-                                            if lPtr<(len(Local_NS)-1) :
-                                                w.ui.lblLocal_Dest.setText(CleanCt(Local_NS[lPtr-1],""))
-                                                lMilesToNext = float(Loc_M_NS[lPtr])
+                                            if lPtr<(len(Local_NS)-1):
+                                                if lExpress:
+                                                    w.ui.lblLocal_Dest.setText(CleanCt(Local_NS[1],""))
+                                                else:
+                                                    lDestSet = lPtr-1
+                                                    w.ui.lblLocal_Dest.setText(CleanCt(Local_NS[lDestSet],""))
                                             else:
                                                 w.ui.lblLocal_Arriv.setText("")
-                                            lToStnMiles = Loc_M_NS[lPtr]      # was lPtr
+                                            if lExpress:
+                                                lToStnMiles = lTtl_Dn[1]
+                                                lExpStnMiles = Loc_M_NS[lPtr]
+                                            else:
+                                                lToStnMiles = Loc_M_NS[lPtr]
                                         else:
                                             # in North Yard
-                                            lMilesToNext = 0.0
                                             lToStnMiles = 0.0
                                         displayLocalMiles()
                                         # else:
@@ -1296,6 +1449,36 @@ def ReadDetectors():
                                         #     lTurnAround = True
                                         #     Turn_Around(Local_Dir)
                             TS_State[21]=TS_Off
+                            if lExpress and lBySta:
+                                lBySta = False
+                                if Local_Dir == "S":
+                                    lPtr += 1
+                                else:                        
+                                    lPtr -= 1
+                                lExpStnMiles = Loc_M_NS[lPtr]
+                    elif i == 13:
+                        if lp1:
+                            if lohi:
+                                if Simulate:
+                                    w.ui.pbSDM.setPalette(palAtSta)
+                                # arriving at Main Express Station
+                                if mToSta and mExpress and (mDestSet != mPtr):
+                                    mToStation()
+                            if hilo:
+                                if Simulate:
+                                    w.ui.pbSDM.setPalette(palBlnk)
+                                # leaving Main Express Station
+                                if mAtSta and mExpress and (mDestSet != mPtr):
+                                    mLvgStation()
+                                TS_State[21]=TS_Off
+                                if mExpress and mBySta and MoverL == False:
+                                    mBySta = False
+                                    if Main_Dir == "S":
+                                        mPtr += 1
+                                    else:                        
+                                        mPtr -= 1
+                                    # test for out of range!!!!
+                                    mExpStnMiles = Main_M_NS[mPtr]
             else:
                 if det == 0 and TD_DBnc[i] != 0:
                     TD_DBnc[i] -= 1
@@ -1320,23 +1503,20 @@ def ReadDetectors():
             TD_DBnc[11] = 0
 
 def displayLocalMiles():
-    global LocalMiles, lMilesToNext, lTripMiles, lMilesToNext
+    global LocalMiles, lTripMiles
 
     w.ui.lTotalMiles.setText(str(int(LocalMiles)))
-    # w.ui.lMilesToNext.setText(str("%.2f" % lMilesToNext))
 
     w.ui.lMilesTraveled.setText(str("%.2f" % lTripMiles))
     w.ui.lMilesToSta.setText(str("%.2f" % lToStnMiles))
 
 def displayMainMiles():
-    global MainMiles, mMilesToNext, mTripMiles, mMilesToNext
+    global MainMiles, mTripMiles
 
     w.ui.mTotalMiles.setText(str(int(MainMiles)))
-    # w.ui.mMilesToNext.setText(str("%.2f" % mMilesToNext))
 
     w.ui.mMilesTraveled.setText(str("%.2f" % mTripMiles))
     w.ui.mMilesToSta.setText(str("%.2f" % mToStnMiles))
-                
 
 def Servo_Control(sv, pos):
     global SV_Type
@@ -1379,13 +1559,24 @@ def Servo_Control(sv, pos):
     return(1)
 
 def ToggleDet(msg):
-    trk = msg[0]
-    det = int(msg[1])
-    if trk == "L":
-        # toggle Local Detector
-        det = (det*4)-1
-        # Servo_Control()
-
+    global Simulate
+    if Simulate == False:
+        Simulate = True
+    if Simulate:
+        trk = msg[0]
+        det = int(msg[1])
+        if trk == "L":
+            # toggle Local Detector
+            det = (det+4)
+        elif trk == "W":
+            det = (det+8)
+        elif trk == "S":
+            det = (det+12)
+        det -= 1
+        if TD_SimSt[det] == 0:
+            TD_SimSt[det] = 1
+        else:
+            TD_SimSt[det] = 0
         
 # Generate a List of Files with (extension)
 def GenFileList(ext):
@@ -1451,8 +1642,10 @@ def Save_Train_State(fN):
             mPtr,  mDetMiles, Main_Dir, MT_Pos, \
             LocalStation, lToStnMiles, lTripMiles, LScale, \
             lPtr, lDetMiles, Local_Dir, LT_Pos
+    
 
     # Change name of current invertory file to *.bak
+    fNew = ""
     try:
         # get version
         f = open("./"+fN+".ses")
@@ -1673,7 +1866,10 @@ def ClearDetectors():
     w.ui.pbLD_4.setPalette(palBlank)
     w.ui.pbWyeLD_1.setPalette(palBlank)
     w.ui.pbWyeLD_2.setPalette(palBlank)
+    w.ui.pbWyeLD_3.setPalette(palBlank)
     w.ui.pbWyeRD.setPalette(palBlank)
+    w.ui.pbSDL.setPalette(palBlank)
+    w.ui.pbSDM.setPalette(palBlank)
 
 def Set_Switches(Line, Dir):
     global SV_Type
@@ -1803,12 +1999,12 @@ def Set_Switches(Line, Dir):
             w.ui.lineWye2R_2.setPalette(pal)
             w.ui.lineWye2R_3.setPalette(pal)
 
-def Test_Boom(UD):
-    Servo_Control(6, UD)
-    St = TS_Off
-    if UD == "D":
-        St = TS_Yellow
-    TS_State[20] = St
+# def Test_Boom(UD):
+#     Servo_Control(6, UD)
+#     St = TS_Off
+#     if UD == "D":
+#         St = TS_Yellow
+#     TS_State[20] = St
 
 def Set_Signals(Trk, Dir, St):
     global TS_State, TS_Type
@@ -1928,8 +2124,8 @@ def CleanCt(namStr, stnam):
 
 def Load_CT_Data(fFile):
     global  lToStnMiles, lTripMiles, LScale, lPtr, lDetMiles, \
-            Local_Dir, LocalMiles, lMilesToNext, Testing, \
-            lToSta, lTtl_Dn, lTtl_Up
+            Local_Dir, LocalMiles, Testing, \
+            lToSta, lTtl_Dn, lTtl_Up, lStrtSet, lDestSet
 
     # Load CT Shore Start point and direction of travel
     if (fFile == False):
@@ -1938,17 +2134,20 @@ def Load_CT_Data(fFile):
     w.ui.lblLocStaNm.setText(CleanCt(Local_NS[lPtr], "y"))
     lTripMiles = 0.0
     lDetMiles = float(LScale / 4)
+    lDestSet = lPtr
     if Local_Dir == "S":
         # Set North bound signals to red
         Set_Signals("L","N","R")
         w.ui.lblL_L.setText("L")
         w.ui.lblL_R.setText("SB")
-        lMilesToNext = float(Loc_M_NS[lPtr])    #17
         if (lPtr>0 and lPtr!=len(Local_NS)-1):
             # At Station
             w.ui.lblLocal_Arriv.setText("Arriving")      #CleanCt(Local_NS[lPtr-1],""))
             if lPtr < (len(Local_NS)-1):
-                w.ui.lblLocal_Dest.setText(CleanCt(Local_NS[lPtr+1],""))
+                if lExpress:
+                    w.ui.lblLocal_Dest.setText(CleanCt(Local_NS[lDestSet],""))
+                else:
+                    w.ui.lblLocal_Dest.setText(CleanCt(Local_NS[lPtr+1],""))
             else:
                 w.ui.lblLocal_Dest.setText(CleanCt(Local_NS[lPtr],""))
         else:
@@ -1963,51 +2162,55 @@ def Load_CT_Data(fFile):
         Set_Signals("L","S","R")
         w.ui.lblL_L.setText("NB")
         w.ui.lblL_R.setText("L")
-        lMilesToNext = float(Loc_M_NS[lPtr-1])      #1
-        lTripMiles = 0.0
         if lPtr<(len(Local_NS)-1) and lPtr>0:
             w.ui.lblLocal_Arriv.setText("Arriving")      # CleanCt(Local_NS[lPtr+1],""))
             if lPtr>0:
-                w.ui.lblLocal_Dest.setText(CleanCt(Local_NS[lPtr-1],"y"))
+                if lExpress:
+                    w.ui.lblLocal_Dest.setText(CleanCt(Local_NS[1],""))
+                else:
+                    w.ui.lblLocal_Dest.setText(CleanCt(Local_NS[lPtr-1],""))
             else:
-                w.ui.lblLocal_Arriv.setText(CleanCt(Local_NS[lPtr]))
+                w.ui.lblLocal_Arriv.setText(CleanCt(Local_NS[lPtr],""))
         else:
             w.ui.lblLocal_Dest.setText(CleanCt(Local_NS[lPtr-1],"y"))
             w.ui.lblLocal_Arriv.setText("")
             lToSta = True
         LocalMiles = lTtl_Up[lPtr]
-        # lToStnMiles = Loc_M_NS[lPtr-1]
     displayLocalMiles()
+    lStrtSet = True
     # lLeavingSta = True
 
 def Load_Acela_Data(fFile):
     global  mToStnMiles, mTripMiles, MScale, mPtr, mAtSta, mToSta, \
-            Main_Dir, MainMiles, mMilesToNext,  mDetMiles, \
-            mLvgSta, Testing, MoverL, mTtl_Dn, mTtl_Up
+            Main_Dir, MainMiles,  mDetMiles, mExpress, \
+            mLvgSta, Testing, MoverL, mTtl_Dn, mTtl_Up, mStrtSet, mDestSet
 
     # Load Acela Start point and direction of travel
     if (fFile == False):
         MainMiles = 0.0
     w.ui.lblMainStaNm.setText(Main_NS[mPtr])
     mTripMiles = 0.0
-    # MoverL = True
-    # mToSta = True
     mDetMiles = float(MScale / 4)
+    mDestSet = mPtr
     if Main_Dir == "S":
         # Set North bound signals to red
         Set_Signals("M","N","R")
         w.ui.lblM_L.setText("M")
-        w.ui.lblM_R.setText("SB") 
-        mMilesToNext = Main_M_NS[mPtr]
+        w.ui.lblM_R.setText("SB")
         if mPtr>0 and mPtr!=len(Main_NS)-1:
             w.ui.lblMain_Arriv.setText("Arriving")
             if mPtr < (len(Main_NS)-1):
+                # if mExpress:
+                #     w.ui.lblMain_Dest.setText(Main_NS[1])
+                # else:
                 w.ui.lblMain_Dest.setText(Main_NS[mPtr+1])
             else:
                 w.ui.lblMain_Dest.setText(Main_NS[mPtr])
         else:
             w.ui.lblMain_Dest.setText(Main_NS[mPtr+1])
             w.ui.lblMain_Arriv.setText("")
+        if mExpress:
+            mDestSet = len(Main_NS)-2
         MainMiles = mTtl_Dn[mPtr]
         # mToStnMiles = Main_M_NS[mPtr]
     else:
@@ -2015,52 +2218,57 @@ def Load_Acela_Data(fFile):
         Set_Signals("M","S","R")
         w.ui.lblM_L.setText("NB")
         w.ui.lblM_R.setText("M")
-        mMilesToNext = Main_M_NS[mPtr-1]
-        mTripMiles = 0.0
         if mPtr<(len(Main_NS)-2):
             w.ui.lblMain_Arriv.setText("Arriving")
             if mPtr<(len(Main_NS)-1) :
+                # if mExpress:
+                #     w.ui.lblMain_Dest.setText(Main_NS[1])
+                # else:
                 w.ui.lblMain_Dest.setText(Main_NS[mPtr-1])
             else:
                 w.ui.lblMain_Arriv.setText(Main_NS[mPtr+1])
         else:
             w.ui.lblMain_Dest.setText(Main_NS[mPtr-1])
             w.ui.lblMain_Arriv.setText("")
+        if mExpress:
+            mDestSet = 1
         MainMiles = mTtl_Up[mPtr]
-        # mToStnMiles = Main_M_SN[mPtr-1]
     displayMainMiles()
+    mStrtSet = True
     # mLeavingSta = True
 
 def startAcela():
-    global Testing, RunDets, Main_Dir, MoverL, mToSta
+    global Testing, RunDets, Main_Dir, MoverL, mToSta, mStrtSet
 
-    if Main_Dir=="S":
-        dir = "N"
-    else:
-        dir = "S"
-    Set_Signals("M", dir, "R")
     Default_Switches()
-    # if TrnDet.read_pin(11):
-    #     mAtSta = True
-    MoverL = True
-    # mToSta = True
+    if mStrtSet:
+        if Main_Dir=="S":
+            dir = "N"
+        else:
+            dir = "S"
+        Set_Signals("M", dir, "R")
+        # if TrnDet.read_pin(11):
+        #     mAtSta = True
+        MoverL = True
+        # mToSta = True
     Testing = False
     RunDets = 1
 
 def startCTShore():
-    global Testing, RunDets, Local_Dir, lToSta, lAtSta
+    global Testing, RunDets, Local_Dir, lToSta, lAtSta, lStrtSet
 
-    if Local_Dir=="S":
-        dir = "N"
-    else:
-        dir = "S"
-    Set_Signals("L", dir, "R")
     Default_Switches()
-    if TrnDet.read_pin(11):
-        lAtSta = True
-        w.ui.lblLocal_Arriv.setText("Arrived")    
-    TS_State[21]=TS_On
-    lToSta = True
+    if lStrtSet:
+        if Local_Dir=="S":
+            dir = "N"
+        else:
+            dir = "S"
+        Set_Signals("L", dir, "R")
+        if TrnDet.read_pin(11)==0:
+            lAtSta = True
+            w.ui.lblLocal_Arriv.setText("Arrived")    
+        TS_State[21]=TS_On
+        lToSta = True
     Testing = False
     RunDets = 2
 
@@ -2077,6 +2285,16 @@ def ShowMsg():
     # w.ui.statusBar.showMessage("MPos = " + str(MT_Pos)+"  LPos = " + str(LT_Pos) + "  mPtr = " + str(mPtr) + "  lPtr = " + str(lPtr) + "  Train Time = " + str(Time2), 0)
     w.ui.statusBar.showMessage("Main Dir = " + timeMDir + "  Main Speed = " + str("%.1f" % mainSpd), 0)
 
+def ShowWarng():
+    global WarningFlg
+
+    if WarningFlg:
+        w.ui.lblMainLine.setText("Missing Boards!!")
+        WarningFlg = False
+    else:
+        w.ui.lblMainLine.setText("")
+        WarningFlg = True
+
 
 class AppWindow(QMainWindow):
     def __init__(self, *args, **kwargs):
@@ -2085,6 +2303,8 @@ class AppWindow(QMainWindow):
         self.ui.setupUi(self)
 
         Load_Track_Inventory()
+
+        msg = ""
 
         # clear Direction Indicators
         self.ui.lblM_L.setText("")
@@ -2097,7 +2317,9 @@ class AppWindow(QMainWindow):
         self.ui.statusBar.setFont(fnt)
 
         # set Station Color
-        self.ui.pbLStation.setPalette(palAwaySta)
+        self.ui.pbSDM.setPalette(palBlnk)
+        self.ui.pbSDL.setPalette(palBlnk)
+        
         # Turn Off Station Light
         TS_State[21] = TS_Off
 
@@ -2108,6 +2330,7 @@ class AppWindow(QMainWindow):
             dlgC = Ui_dlgCTStPt()
             dlgC.setupUi(dlgwin)
             dlgC.cbxCtShorStartPt.addItems(Local_NS)
+            # dlgC.cbxExpress.hide()
             if dlgwin.exec_():
                 lPtr = dlgC.cbxCtShorStartPt.currentIndex()
                 Local_Dir = dlgC.cbxCtShoreDir.currentText()[0]
@@ -2122,6 +2345,7 @@ class AppWindow(QMainWindow):
             dlgA = Ui_dlgAcelaStPt()
             dlgA.setupUi(dlgwin)
             dlgA.cbxAcelaStartPt.addItems(Main_NS)
+            # dlgA.cbxExpress.hide()
             if dlgwin.exec_():
                 mPtr = dlgA.cbxAcelaStartPt.currentIndex()
                 Main_Dir = dlgA.cbxAcelaDir.currentText()[0]
@@ -2133,12 +2357,13 @@ class AppWindow(QMainWindow):
             global SessionName
             FList = []
             dlgwin = QDialog()
-            dlg = Ui_dlgFileOpen()
+            if SorO == "S":
+                dlg = Ui_dlgFileSave()
+            else:
+                dlg = Ui_dlgFileOpen()
             dlg.setupUi(dlgwin)
             FList = GenFileList(".ses")
             dlg.cbxFileList.addItems(FList)
-            if SorO == "S":
-                dlg.cbxFileList.setEditable(True)
             if dlgwin.exec_():
                 SessionName = dlg.cbxFileList.currentText().strip(".ses")
                 if SorO == "O":
@@ -2167,8 +2392,54 @@ class AppWindow(QMainWindow):
             TurnOffHardware()
             self.close()
 
-        # def Toggle(msg):
-        #     ToggleDet(msg)
+        def ToggleM1():
+            ToggleDet("M1")
+
+        def ToggleM2():
+            ToggleDet("M2")
+
+        def ToggleM3():
+            ToggleDet("M3")
+            
+        def ToggleM4():
+            ToggleDet("M4")
+            
+        def ToggleL1():
+            ToggleDet("L1")
+
+        def ToggleL2():
+            ToggleDet("L2")
+
+        def ToggleL3():
+            ToggleDet("L3")
+
+        def ToggleL4():
+            ToggleDet("L4")
+
+        def ToggleW1():
+            ToggleDet("W1")
+
+        def ToggleW2():
+            ToggleDet("W2")
+
+        def ToggleW3():
+            ToggleDet("W4")
+
+        def ToggleW4():
+            ToggleDet("W3")
+
+        def ToggleSTL():
+            ToggleDet("S1")
+
+        def ToggleSTM():
+            ToggleDet("S2")
+
+        if HdwMsg != "":
+            WarningFlg = True
+            self.ui.lblMainLine.setPalette(palRedTxt)
+            self.runTimer = QTimer()
+            self.runTimer.timeout.connect(ShowWarng)
+            self.runTimer.start(1000)
 
         self.ui.actionAcela.triggered.connect(AcelaStPt)
         self.ui.actionCT_Shore.triggered.connect(CT_Shore)
@@ -2181,17 +2452,20 @@ class AppWindow(QMainWindow):
         self.ui.actionSave_Session_as.triggered.connect(SaveSessionAs)
         self.ui.actionLoad_Last_Session.triggered.connect(LoadSession)
         self.ui.actionLoad_Session.triggered.connect(LoadSessionAs)
-        # self.ui.actionLD_1.triggered.connect(Toggle("L1"))
-        # self.ui.actionLD_2.triggered.connect(Toggle("L2"))
-        # self.ui.actionLD_3.triggered.connect(Toggle("L3"))
-        # self.ui.actionLD_4.triggered.connect(Toggle("L4"))
-        # # self.ui.actionWL_1.triggered.connect(Toggle("W1"))
-        # # self.ui.actionWL_2.triggered.connect(Toggle("W2"))
-        # # self.ui.actionWR_1.triggered.connect(Toggle("W3"))
-        # self.ui.actionMD_1.triggered.connect(Toggle("M1"))
-        # self.ui.actionMD_2.triggered.connect(Toggle("M2"))
-        # self.ui.actionMD_3.triggered.connect(Toggle("M3"))
-        # self.ui.actionMD_4.triggered.connect(Toggle("M4"))
+        self.ui.actionLD_1.triggered.connect(ToggleL1)
+        self.ui.actionLD_2.triggered.connect(ToggleL2)
+        self.ui.actionLD_3.triggered.connect(ToggleL3)
+        self.ui.actionLD_4.triggered.connect(ToggleL4)
+        self.ui.actionWD_L1.triggered.connect(ToggleW1)
+        self.ui.actionWD_L2.triggered.connect(ToggleW2)
+        self.ui.actionWD_L3.triggered.connect(ToggleW3)
+        self.ui.actionWD_R.triggered.connect(ToggleW4)
+        self.ui.actionMD_1.triggered.connect(ToggleM1)
+        self.ui.actionMD_2.triggered.connect(ToggleM2)
+        self.ui.actionMD_3.triggered.connect(ToggleM3)
+        self.ui.actionMD_4.triggered.connect(ToggleM4)
+        self.ui.actionSTL.triggered.connect(ToggleSTL)
+        self.ui.actionSTM.triggered.connect(ToggleSTM)
 
         self.TTimer = QTimer()
         self.TTimer.timeout.connect(TS_Blinker)
@@ -2201,14 +2475,11 @@ class AppWindow(QMainWindow):
         self.DTimer.timeout.connect(ReadDetectors)
         self.DTimer.start(100)
 
-        # self.runTimer = QTimer()
-        # self.runTimer.timeout.connect(ShowPos)
-        # self.runTimer.start(1000)
-
 app = QApplication(sys.argv)
 w = AppWindow()
 
 RunDets = 0
+Set_Signals("A","A","O")
 Set_Signals("M","N","R")
 Set_Signals("M","S","R")
 Set_Signals("L","N","R")

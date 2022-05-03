@@ -1,15 +1,15 @@
 Track Inventory Data
 
 Version:
-0.015
+0.014
 
-Fri Jan 26 11:03:21 2024
+Fri Jan 26 08:53:38 2024
 
 Servo Data:
 R, L, R, L, W, W, B,  ,  ,  ,  ,  ,  ,  ,  ,  
 
 Train Detector Data:
-D, D, D, D, D, D, D, D, D, D, D, D, S, S,  ,  
+D, D, D, D, D, D, D, D, D, D, D, S, S, D,  ,  
 
 Train Signal Data:
 S, S, S, S, S, S, S, S, S, S, S, S, S, S, S, S, S, S, S, S, B, F,  ,  

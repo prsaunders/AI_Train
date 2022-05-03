@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>File Save</string>
   </property>
-  <widget class="QDialogButtonBox" name="dlgbxAcelaStPt">
+  <widget class="QDialogButtonBox" name="dlgbxFileSave">
    <property name="geometry">
     <rect>
      <x>70</x>
@@ -78,5 +78,38 @@
   </widget>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>dlgFileSave</sender>
+   <signal>accepted()</signal>
+   <receiver>dlgFileSave</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>174</x>
+     <y>64</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>174</x>
+     <y>64</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>dlgFileSave</sender>
+   <signal>rejected()</signal>
+   <receiver>dlgFileSave</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>174</x>
+     <y>64</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>174</x>
+     <y>64</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

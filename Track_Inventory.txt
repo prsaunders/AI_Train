@@ -9,7 +9,7 @@ Servo Data:
 R, L, R, L, W, W, B,  ,  ,  ,  ,  ,  ,  ,  ,  
 
 Train Detector Data:
-D, D, D, D, D, D, D, D, D, D, D, S,  ,  ,  ,  
+D, D, D, D, D, D, D, D, D, D, D, D, S,  ,  ,  
 
 Train Signal Data:
 S, S, S, S, S, S, S, S, S, S, S, S, S, S, S, S, S, S, S, S, B, F,  ,  

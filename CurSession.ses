@@ -1,23 +1,23 @@
 Session State
 
 Version:
-0.016
+0.033
 
-Tue Apr  5 17:45:52 2022
+Thu Apr 28 09:13:28 2022
 
 Servo State:
-M, M, S, M, M, M,  ,  ,  ,  ,  ,  ,  ,  ,  ,  
+M, M, M, M,  ,  , U,  ,  ,  ,  ,  ,  ,  ,  ,  
 
 Train Detector State:
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0
+0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0
 
 Last Main Train Position:
-0S
+2S
 Last Local Train Position:
-
+2S
 
 Train Signal State:
-R, G, Y, R, R, R, R, R, R, R, Y, R, R, R, R, R, R, R, R, R, O, 3, O, O
+Y, R, G, G, R, R, R, R, Y, R, G, G, R, R, R, R, R, R, R, R, O, O, O, O
 
 Acela Route Selection
 Main Station:
@@ -33,7 +33,7 @@ Miles To Station:
 Trip Miles:
 0.0
 Scale:
-10
+1
 
 CT Route Selection
 Local Station:

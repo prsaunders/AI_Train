@@ -5,7 +5,7 @@ Adding Speed and Motion Direction routines
 
 # Introduction
 
-This project simulates Acela (Boston to Washington, DC with stops along the way) and the CT Shoreline (New London to Stamford) routes as represented in a Lego train setup with Acela as the outer loop and CT Shoreline as the local loop. The goal is eventually to control the trains using Bluetooth autonomously. Currently using Raspberry Pi 4 to control the hardware (switches, signal lights, detectors) autonomously but train power is set manually via Lego Train Engineer or remote controllers. 
+This project simulates Acela (Boston to Washington, DC with stops along the way) and the CT Shoreline (New London to Stamford) routes as represented in a Lego train setup with Acela as the outer loop and CT Shoreline as the local loop. The goal is eventually to control the trains using Bluetooth autonomously. Currently using Raspberry Pi 4 (switching to Raspberry Pi 5) to control the hardware (switches, signal lights, detectors) autonomously but train power is set manually via Lego Train Engineer or remote controllers. 
 
 ![IMG_0090](https://user-images.githubusercontent.com/23269355/162502642-ce1c6b58-4e51-4ca6-b9ed-cd489883c7f7.jpg)
 

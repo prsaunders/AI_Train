@@ -1,52 +1,52 @@
 Session State
 
 Version:
-0.048
+0.053
 
-Sat Jan 27 11:21:01 2024
+Sun Feb 11 08:28:01 2024
 
 Servo State:
- ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  
+S, S, M, M, R, M,  ,  ,  ,  ,  ,  ,  ,  ,  ,  
 
 Train Detector State:
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 0, 0
 
 Last Main Train Position:
-
+0S
 Last Local Train Position:
-
+1N
 
 Train Signal State:
-R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, O, O, O, O
+Y, G, Y, R, R, R, R, R, R, Y, Y, Y, R, G, G, R, R, G, R, R, O, 3, O, O
 
 Acela Route Selection
 Main Station:
-North Yard
+Route 128, MA(RTE)
 Main Ptr:
-0
+2
 Direction:
-
+S
 Main Miles:
-0
+450
 Miles To Station:
-0.0
+30
 Trip Miles:
-0.0
+6.25
 Scale:
-1
+5
 
 CT Route Selection
 Local Station:
-North Yard(S)
+West Haven(M)
 Local Ptr:
-0
+8
 Direction:
-
+N
 Local Miles:
-0
+68
 Miles To Station:
-0.0
+2.25
 Trip Miles:
-0.0
+5.75
 Scale:
 1

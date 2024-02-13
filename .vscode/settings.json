@@ -3,5 +3,6 @@
     "markdown.preview.fontSize": 16,
     "terminal.integrated.fontSize": 12,
     "editor.fontSize": 12,
-    "python.analysis.typeCheckingMode": "basic"
+    "python.analysis.typeCheckingMode": "basic",
+    "debug.toolBarLocation": "floating"
 }

@@ -46,13 +46,13 @@ from AI_Win import Ui_mwinAI_Train
 from Acela_Strt_Pt import Ui_dlgAcelaStPt
 from CT_Shore_Strt_Pt import Ui_dlgCTStPt
 from FileOpen import Ui_dlgFileOpen
-# from FileSave import Ui_dlgFileSave
- 
+from FileSave import Ui_dlgFileSave
+
+AI_Train_Ver = 1.004
+
 TrackInventoryVer = 0.0
 TrackStateVer = 0.0
 # CurSessionName = "CurSession"
-
-Simulate = False
 
 ALL_IO = 0
 
@@ -69,7 +69,7 @@ try:
     TrnSigM.invert_bus(0xFFFF)
     ALL_IO += 1
 except:
-    HdwMsg += " Detector and Signal(1-8) Board is Missing/n"
+    HdwMsg += " Detector and Signal(1-8) Board is Missing\n"
 
 try:
     # Second Card
@@ -82,7 +82,7 @@ try:
     ALL_IO += 1
 except:
     ALL_IO = ALL_IO
-    HdwMsg += "Signal (9-24) Board is Missing/n"
+    HdwMsg += "Signal (9-24) Board is Missing\n"
 
     
 # global SV_Type, BM_State, TD_State, TS_Type
@@ -189,7 +189,7 @@ mTtl_Up = [0, 0, 10, 40, 140, 180, 220, 230, 310, 340, 410, 420, 450, 450]
 # mTtl_Dn = [446, 446, 436, 403, 302, 261, 226, 216, 135, 107, 40, 31, 0, 0]
 # mTtl_Up = [0, 0, 10, 43, 144, 185, 220, 230, 311, 339, 406, 415, 446, 446]
 Main_Dir = ""      # S = Moving South, N = Moving North
-MT_Pos = ""
+MT_Pos = "  "
 MScale = 1          # miles/loop
 MainStation = ""
 MainMiles = int(0)  # MTrip[0,0]
@@ -209,7 +209,7 @@ mBySta = False
 
 Main_Over_Local = True
 
-Local_NS = ['North Yard(S)',
+Local_NS = ['North Yard(S)',  
             'New London(S)', 'Old Saybrook(S)', 'Westbrook(S)', 'Guilford(S)',
             'Branford(S)', 'State Street(S)', 'New Haven(S)', 'West Haven(M)',
             'Milford(M)', 'Stratford(M)', 'Bridgeport(M)', 'Fairfield Metro(M)',
@@ -223,7 +223,7 @@ lTtl_Up = [0, 0, 18, 23, 37, 46, 57, 58, 61, 68, 73, 77, 81, 83, 90, 93, 97, 102
 NLine = "Shore Line East"
 SLine = "Metro North"
 Local_Dir = ""     # S = Moving South, N = Moving North
-LT_Pos = ""
+LT_Pos = "  "
 LScale = 1          # miles/loop
 LocalStation = ""
 LocalMiles = int(0) # LTrip[0,0]
@@ -299,8 +299,8 @@ palAtSta.setColor(QPalette.Button, Qt.cyan)
 palAwaySta = QPalette()
 palAwaySta.setColor(QPalette.Button, Qt.darkCyan)  #QColor(85,170,255))
 
-
-Testing = False
+Simulate = False    # Allows setting detectors manually; instead of having an actual train running
+Testing = True      # Allows running trains with signal lights alone until Destinations are set.
 RunDets = 0
 WarningFlg = True
 
@@ -332,45 +332,45 @@ def TS_Blinker():
                 t -= 1
                 TS_Time[i] = t
         state = TS_Ind[i]
-        if i < 8:
-            pin = ((i*2)+1)
-            TS = TrnSigM
-        elif i < 16:
-            pin = (((i-8)*2)+1)
-            TS = TrnSigL
-        else:
-            pin = (((i-16)*2)+1)
-            TS = TrnSigW
- 
-        if TS_State[i] == TS_Green:
-            TS.write_pin(pin, 0)    # green on
-            TS.write_pin(pin+1,1)   # red off
-        elif TS_State[i] == TS_Red:
-            TS.write_pin(pin+1, 0)  # red on
-            TS.write_pin(pin, 1)    # green off
-        elif TS_State[i] == TS_FlashR:
-            TS.write_pin(pin, 1)        # green off
-            TS.write_pin(pin+1,state)   # flashing red
-        elif TS_State[i] == TS_Yellow:
-            if state==1:
-                # green on
-                TS.write_pin(pin, 1)
-                TS.write_pin((pin+1), 0)
+        if ALL_IO == 2:
+            if i < 8:
+                pin = ((i*2)+1)
+                TS = TrnSigM
+            elif i < 16:
+                pin = (((i-8)*2)+1)
+                TS = TrnSigL
             else:
+                pin = (((i-16)*2)+1)
+                TS = TrnSigW
+            if TS_State[i] == TS_Green:
+                TS.write_pin(pin, 0)    # green on
+                TS.write_pin(pin+1,1)   # red off
+            elif TS_State[i] == TS_Red:
+                TS.write_pin(pin+1, 0)  # red on
+                TS.write_pin(pin, 1)    # green off
+            elif TS_State[i] == TS_FlashR:
+                TS.write_pin(pin, 1)        # green off
+                TS.write_pin(pin+1,state)   # flashing red
+            elif TS_State[i] == TS_Yellow:
+                if state==1:
+                    # green on
+                    TS.write_pin(pin, 1)
+                    TS.write_pin((pin+1), 0)
+                else:
+                    TS.write_pin(pin, 0)
+                    TS.write_pin((pin+1), 1)
+            elif TS_State[i] == TS_Off:
+                TS.write_pin(pin, 1)
+                TS.write_pin(pin+1,1)
+            elif TS_State[i] == TS_On:
                 TS.write_pin(pin, 0)
-                TS.write_pin((pin+1), 1)
-        elif TS_State[i] == TS_Off:
-            TS.write_pin(pin, 1)
-            TS.write_pin(pin+1,1)
-        elif TS_State[i] == TS_On:
-            TS.write_pin(pin, 0)
-            TS.write_pin(pin+1,0)
-        elif TS_State[i] == TS_O1:
-            TS.write_pin(pin, 0)
-            TS.write_pin(pin+1,1)
-        elif TS_State[i] == TS_O2:
-            TS.write_pin(pin, 1)
-            TS.write_pin(pin+1,0)
+                TS.write_pin(pin+1,0)
+            elif TS_State[i] == TS_O1:
+                TS.write_pin(pin, 0)
+                TS.write_pin(pin+1,1)
+            elif TS_State[i] == TS_O2:
+                TS.write_pin(pin, 1)
+                TS.write_pin(pin+1,0)
 
 def Turn_Around(dir):
     global TS_State, yLeft1, yRight
@@ -481,7 +481,6 @@ def mToStation():
             mExpStnMiles
 
     mToSta = False
-    mAtSta = True
     w.ui.lblMain_Arriv.setText("Arrived")
     w.ui.pbSDL.setPalette(palAtSta)
     if mTurnAround and mTurned:
@@ -534,14 +533,15 @@ def mToStation():
         w.ui.lblMainStaNm.setText(Main_NS[mPtr])
         w.ui.lblMain_Arriv.setText("Arrived")
         if mPtr>1 and mPtr < (len(Main_NS)-1):
-            if mPtr < (len(Main_NS)-2):
-                w.ui.lblMain_Arriv.setText(Main_NS[mPtr+1])
+            # if mPtr < (len(Main_NS)-2):
+            #     w.ui.lblMain_Arriv.setText(Main_NS[mPtr+1])
             if mExpress:
                 w.ui.lblMain_Dest.setText(Main_NS[1])
             else:
-                mDestSet = mPtr-1
+                # mDestSet = mPtr-1
                 w.ui.lblMain_Dest.setText(Main_NS[mDestSet])
         else:
+            w.ui.lblMain_Dest.setText("")
             # start turn-around process
             mTurnAround = True
             Turn_Around(Main_Dir)
@@ -550,6 +550,7 @@ def mToStation():
             mExpStnMiles = Main_M_NS[mPtr]
         else:
             mToStnMiles = Main_M_NS[mPtr]
+    mAtSta = True
     displayMainMiles()
 
 def mLvgStation():
@@ -634,7 +635,7 @@ def ReadDetectors():
             lToSta, lAtSta, yLeft1, yLeft2, yLeft3, yRight, lp1, MoverL, lsiding, lTurnAround, \
             MLswitch, mTurned, lTurned, staDelay, oneMin, fiveMin, lToSiding,  \
             timeMDir, timeMD, timeMPre, timeM, timeLDir, timeLD, timeLPre, timeL, \
-            mStrtSet, lStrtSet, mDestSet, lDestSet, lBySta, lLvgSta, Simulate   # , Set_Switches
+            mStrtSet, lStrtSet, mDestSet, lDestSet, lBySta, lLvgSta, Simulate, MScale, LScale   # , Set_Switches
                
     if ALL_IO >= 1 and RunDets != 0:
         det = 0
@@ -660,113 +661,112 @@ def ReadDetectors():
                         if i == 0:
                             if TD_State[i]:
                                 w.ui.pbMD_1.setPalette(palBlue)
-                                if Testing == False:
-                                    if Main_Dir == "S":
-                                        TS_State[0] = TS_Green
-                                        w.ui.pbMSS_1.setPalette(palGreen)
-                                        TS_State[1] = TS_Green
-                                        TS_State[2] = TS_Yellow
-                                        TS_State[3] = TS_Red
-                                        w.ui.pbMSS_2.setPalette(palGreen)
-                                        w.ui.pbMSS_3.setPalette(palYellow)
-                                        w.ui.pbMSS_4.setPalette(palRed)
-                                    else:       # == "N"
-                                        TS_State[4] = TS_Red
-                                        TS_State[5] = TS_Yellow
-                                        TS_State[6] = TS_Green
-                                        TS_State[7] = TS_Green
-                                        w.ui.pbMSN_1.setPalette(palRed)
-                                        w.ui.pbMSN_2.setPalette(palYellow)
-                                        w.ui.pbMSN_3.setPalette(palGreen)
-                                        w.ui.pbMSN_4.setPalette(palGreen)
+                                if Main_Dir == "S":
+                                    TS_State[0] = TS_Green
+                                    w.ui.pbMSS_1.setPalette(palGreen)
+                                    TS_State[1] = TS_Green
+                                    TS_State[2] = TS_Yellow
+                                    TS_State[3] = TS_Red
+                                    w.ui.pbMSS_2.setPalette(palGreen)
+                                    w.ui.pbMSS_3.setPalette(palYellow)
+                                    w.ui.pbMSS_4.setPalette(palRed)
+                                elif Main_Dir == "N":
+                                    TS_State[4] = TS_Red
+                                    TS_State[5] = TS_Yellow
+                                    TS_State[6] = TS_Green
+                                    TS_State[7] = TS_Green
+                                    w.ui.pbMSN_1.setPalette(palRed)
+                                    w.ui.pbMSN_2.setPalette(palYellow)
+                                    w.ui.pbMSN_3.setPalette(palGreen)
+                                    w.ui.pbMSN_4.setPalette(palGreen)
                                 if lohi:
                                     # use for speed and direction detection
                                     setSpdDir("M", i, time())
                             else:
                                 w.ui.pbMD_1.setPalette(palBlank)
                                 if lp1:
-                                    if MoverL and mLvgSta and (Main_Dir == "N"):           #  and mToSta == False:
-                                        if hilo:
-                                            # return main sw to MAIN
-                                            Set_Switches("M", "M")
-                                            # Return Local so it can come back onto Local Loop
-                                            if Local_Dir == "S":
-                                                TS_State[10] = TS_Yellow
-                                                Set_Switches("L", "S")
-                                            else:
-                                                TS_State[14] = TS_Yellow
-                                                Set_Switches("L", "N")
-                                            TS_State[18] = TS_Yellow
-                                            w.ui.pbWyeLSO.setPalette(palYellow)
-                                            w.ui.pbWyeRSO.setPalette(palYellow)
-                                            MoverL = False
-                                            mLvgSta = False
+                                    if Testing == False:
+                                        if MoverL and mLvgSta and (Main_Dir == "N"):           #  and mToSta == False:
+                                            if hilo:
+                                                # return main sw to MAIN
+                                                Set_Switches("M", "M")
+                                                # Return Local so it can come back onto Local Loop
+                                                if Local_Dir == "S":
+                                                    TS_State[10] = TS_Yellow
+                                                    Set_Switches("L", "S")
+                                                else:
+                                                    TS_State[14] = TS_Yellow
+                                                    Set_Switches("L", "N")
+                                                TS_State[18] = TS_Yellow
+                                                w.ui.pbWyeLSO.setPalette(palYellow)
+                                                w.ui.pbWyeRSO.setPalette(palYellow)
+                                                MoverL = False
+                                                mLvgSta = False
                         elif i == 1:
                             if TD_State[i]:
                                 w.ui.pbMD_2.setPalette(palBlue)
-                                if Testing == False:
-                                    if Main_Dir == "S":
-                                        TS_State[0] = TS_Red
-                                        TS_State[1] = TS_Green
-                                        TS_State[2] = TS_Green
-                                        TS_State[3] = TS_Yellow
-                                        w.ui.pbMSS_1.setPalette(palRed)
-                                        w.ui.pbMSS_2.setPalette(palGreen)
-                                        w.ui.pbMSS_3.setPalette(palGreen)
-                                        w.ui.pbMSS_4.setPalette(palYellow)
-                                    else:       # == "N"
-                                        TS_State[4] = TS_Green
-                                        TS_State[5] = TS_Red
-                                        TS_State[6] = TS_Yellow
-                                        TS_State[7] = TS_Green
-                                        w.ui.pbMSN_1.setPalette(palGreen)
-                                        w.ui.pbMSN_2.setPalette(palRed)
-                                        w.ui.pbMSN_3.setPalette(palYellow)
-                                        w.ui.pbMSN_4.setPalette(palGreen)
+                                if Main_Dir == "S":
+                                    TS_State[0] = TS_Red
+                                    TS_State[1] = TS_Green
+                                    TS_State[2] = TS_Green
+                                    TS_State[3] = TS_Yellow
+                                    w.ui.pbMSS_1.setPalette(palRed)
+                                    w.ui.pbMSS_2.setPalette(palGreen)
+                                    w.ui.pbMSS_3.setPalette(palGreen)
+                                    w.ui.pbMSS_4.setPalette(palYellow)
+                                elif Main_Dir == "N":
+                                    TS_State[4] = TS_Green
+                                    TS_State[5] = TS_Red
+                                    TS_State[6] = TS_Yellow
+                                    TS_State[7] = TS_Green
+                                    w.ui.pbMSN_1.setPalette(palGreen)
+                                    w.ui.pbMSN_2.setPalette(palRed)
+                                    w.ui.pbMSN_3.setPalette(palYellow)
+                                    w.ui.pbMSN_4.setPalette(palGreen)
                                 if lohi:
                                     # use for speed and direction detection
                                     setSpdDir("M", i, time())
                             else:
                                 w.ui.pbMD_2.setPalette(palBlank)
                                 if lp1:
-                                    if MoverL and mLvgSta and (Main_Dir == "S"):
-                                        if hilo:
-                                            # return MAIN sws to Main from Spur
-                                            Set_Switches("M", "M")
-                                            # Return Local so it can come back onto Local Loop from spur
-                                            if Local_Dir == "S":
-                                                TS_State[10] = TS_Yellow
-                                                Set_Switches("L", "S")
-                                            else:
-                                                TS_State[14] = TS_Yellow
-                                                Set_Switches("L", "N")
-                                            TS_State[18] = TS_Yellow
-                                            w.ui.pbWyeLSO.setPalette(palYellow)
-                                            w.ui.pbWyeRSO.setPalette(palYellow)
-                                            MoverL = False
-                                            mLvgSta = False
+                                    if Testing == False:
+                                        if MoverL and mLvgSta and (Main_Dir == "S"):
+                                            if hilo:
+                                                # return MAIN sws to Main from Spur
+                                                Set_Switches("M", "M")
+                                                # Return Local so it can come back onto Local Loop from spur
+                                                if Local_Dir == "S":
+                                                    TS_State[10] = TS_Yellow
+                                                    Set_Switches("L", "S")
+                                                else:
+                                                    TS_State[14] = TS_Yellow
+                                                    Set_Switches("L", "N")
+                                                TS_State[18] = TS_Yellow
+                                                w.ui.pbWyeLSO.setPalette(palYellow)
+                                                w.ui.pbWyeRSO.setPalette(palYellow)
+                                                MoverL = False
+                                                mLvgSta = False
                         elif i == 2:
                             if TD_State[i]:
                                 w.ui.pbMD_3.setPalette(palBlue)
-                                if Testing == False:
-                                    if Main_Dir == "S":
-                                        TS_State[0] = TS_Yellow
-                                        TS_State[1] = TS_Red
-                                        TS_State[2] = TS_Green
-                                        TS_State[3] = TS_Green
-                                        w.ui.pbMSS_1.setPalette(palYellow)
-                                        w.ui.pbMSS_2.setPalette(palRed)
-                                        w.ui.pbMSS_3.setPalette(palGreen)
-                                        w.ui.pbMSS_4.setPalette(palGreen)
-                                    else:       # == "N"
-                                        TS_State[4] = TS_Green
-                                        TS_State[5] = TS_Green
-                                        TS_State[6] = TS_Red
-                                        TS_State[7] = TS_Yellow
-                                        w.ui.pbMSN_1.setPalette(palGreen)
-                                        w.ui.pbMSN_2.setPalette(palGreen)
-                                        w.ui.pbMSN_3.setPalette(palRed)
-                                        w.ui.pbMSN_4.setPalette(palYellow)
+                                if Main_Dir == "S":
+                                    TS_State[0] = TS_Yellow
+                                    TS_State[1] = TS_Red
+                                    TS_State[2] = TS_Green
+                                    TS_State[3] = TS_Green
+                                    w.ui.pbMSS_1.setPalette(palYellow)
+                                    w.ui.pbMSS_2.setPalette(palRed)
+                                    w.ui.pbMSS_3.setPalette(palGreen)
+                                    w.ui.pbMSS_4.setPalette(palGreen)
+                                elif Main_Dir == "N":
+                                    TS_State[4] = TS_Green
+                                    TS_State[5] = TS_Green
+                                    TS_State[6] = TS_Red
+                                    TS_State[7] = TS_Yellow
+                                    w.ui.pbMSN_1.setPalette(palGreen)
+                                    w.ui.pbMSN_2.setPalette(palGreen)
+                                    w.ui.pbMSN_3.setPalette(palRed)
+                                    w.ui.pbMSN_4.setPalette(palYellow)
                                 if lohi:
                                     # use for speed and direction detection
                                     setSpdDir("M", i, time())
@@ -775,25 +775,24 @@ def ReadDetectors():
                         elif i == 3:
                             if TD_State[i]:
                                 w.ui.pbMD_4.setPalette(palBlue)
-                                if Testing == False:
-                                    if Main_Dir == "S":
-                                        TS_State[0] = TS_Green
-                                        TS_State[1] = TS_Yellow
-                                        TS_State[2] = TS_Red
-                                        TS_State[3] = TS_Green
-                                        w.ui.pbMSS_1.setPalette(palGreen)
-                                        w.ui.pbMSS_2.setPalette(palYellow)
-                                        w.ui.pbMSS_3.setPalette(palRed)
-                                        w.ui.pbMSS_4.setPalette(palGreen)
-                                    else:       # == "N"
-                                        TS_State[4] = TS_Yellow
-                                        TS_State[5] = TS_Green
-                                        TS_State[6] = TS_Green
-                                        TS_State[7] = TS_Red
-                                        w.ui.pbMSN_1.setPalette(palYellow)
-                                        w.ui.pbMSN_2.setPalette(palGreen)
-                                        w.ui.pbMSN_3.setPalette(palGreen)
-                                        w.ui.pbMSN_4.setPalette(palRed)
+                                if Main_Dir == "S":
+                                    TS_State[0] = TS_Green
+                                    TS_State[1] = TS_Yellow
+                                    TS_State[2] = TS_Red
+                                    TS_State[3] = TS_Green
+                                    w.ui.pbMSS_1.setPalette(palGreen)
+                                    w.ui.pbMSS_2.setPalette(palYellow)
+                                    w.ui.pbMSS_3.setPalette(palRed)
+                                    w.ui.pbMSS_4.setPalette(palGreen)
+                                elif Main_Dir == "N":
+                                    TS_State[4] = TS_Yellow
+                                    TS_State[5] = TS_Green
+                                    TS_State[6] = TS_Green
+                                    TS_State[7] = TS_Red
+                                    w.ui.pbMSN_1.setPalette(palYellow)
+                                    w.ui.pbMSN_2.setPalette(palGreen)
+                                    w.ui.pbMSN_3.setPalette(palGreen)
+                                    w.ui.pbMSN_4.setPalette(palRed)
                                 if lohi:
                                     # use for speed and direction detection
                                     setSpdDir("M", i, time())
@@ -801,275 +800,297 @@ def ReadDetectors():
                                 w.ui.pbMD_4.setPalette(palBlank)
                         if lohi:
                             # Main Loop Mileage
-                            if lp1:
-                                if mToSta == False:  # if MoverL == False:      #  and mToSta == False:
-                                    if (mPtr > 0 and mPtr < len(Main_NS)):
-                                        mToStnMiles -= mDetMiles
-                                        mTripMiles += mDetMiles
-                                        displayMainMiles()
-                                if (mToStnMiles < MScale) and (mToSta == False):    # and (mDestSet != 0):   #  and (MoverL == False):
-                                    if Main_Over_Local:
-                                        # MAIN needs to go to the station
-                                        # give Local chance to go into siding
-                                        if yLeft1==False or yRight==False:
-                                            # Okay to use Wyes as Siding for Local Train
-                                            MoverL = True
-                                            mToSta = True
-                                            # stop MAIN before entering cross-over
-                                            if Main_Dir == "S":
-                                                TS_State[0] = TS_Red
-                                            else:
-                                                TS_State[4] = TS_Red
-
-                                            # set switches to allow LOCAL to go into siding
-                                            if Local_Dir == "S":
-                                                TS_State[10] = TS_Yellow
-                                                Set_Switches("L", "S")
-                                            else:
-                                                TS_State[14] = TS_Yellow
-                                                Set_Switches("L", "N")
-
-                                            # set WYE for LOCAL
-                                            if yLeft1 == False:
-                                                Set_Switches("Y", "L")
-                                            else:
-                                                Set_Switches("Y", "R")
-
-                                            TS_State[18] = TS_Red
-                                            w.ui.pbWyeLSO.setPalette(palRed)
-                                            w.ui.pbWyeRSO.setPalette(palRed)
-
-                                            lToSiding = True
-                                            # set local lights of travel to yellow
-                                            # wait for local to go into turn off
-                                            # Look for Det 8/9 or 10 to go true?????
-                                    else:
-                                        # Main and Local change loops
-                                        MLswitch = True
-                                        if ((MT_Pos == "3N") or (MT_Pos == "2S")) and (mToStnMiles <= mDetMiles):
-                                            # Ready to head to station on inner Loop
-                                            w.ui.lblMain_Arriv.setText("Arriving")
-                                            TS_State[21]=TS_On      # turn on station lights
-                                            # time to set switches and signals to allow 
-                                            # MAIN and LOCAL to switch LOOPs
-                                            if Local_Dir == Main_Dir:
-                                                if (LT_Pos == "3N" and Main_Dir == "N"):
-                                                    TS_State[4] = TS_Yellow
-                                                    TS_State[5] = TS_Yellow
-                                                    TS_State[13] = TS_Red
-                                                elif (LT_Pos == "2S" and Main_Dir == "S"):
-                                                    TS_State[3] = TS_Yellow
-                                                    TS_State[0] = TS_Yellow
-                                                    TS_State[11] = TS_Red
+                            if Testing == False:
+                                if lp1:
+                                    if MoverL == False:      #  and mToSta == False:
+                                        if (mPtr > 0 and mPtr < len(Main_NS)):
+                                            if mToStnMiles == 0.0:
+                                                # for use when tralin is <= 1 loop away
+                                                mToStnMiles = MScale
+                                                if Main_Dir == "N":
+                                                    if i == 1:
+                                                        mToStnMiles *= 1
+                                                    elif i == 0:
+                                                        mToStnMiles *= 0.75
+                                                    elif i == 3:
+                                                        mToStnMiles *= 0.5
+                                                    elif i == 2:
+                                                        mToStnMiles *= 0.25
                                                 else:
+                                                    if i == 2:
+                                                        mToStnMiles *= 1
+                                                    elif i == 3:
+                                                        mToStnMiles *= 0.75
+                                                    elif i == 0:
+                                                        mToStnMiles *= 0.50
+                                                    elif i == 1:
+                                                        mToStnMiles *= 0.25                                                
+                                            mToStnMiles -= mDetMiles
+                                            mTripMiles += mDetMiles
+                                            displayMainMiles()
+                                    if (mToStnMiles < MScale) and (mToSta == False):    # and (mDestSet != 0):   #  and (MoverL == False):
+                                        if Main_Over_Local:
+                                            # MAIN needs to go to the station
+                                            # give Local chance to go into siding
+                                            if yLeft1==False or yRight==False:
+                                                # Okay to use Wyes as Siding for Local Train
+                                                MoverL = True
+                                                mToSta = True
+                                                # stop MAIN before entering cross-over
+                                                if Main_Dir == "S":
                                                     TS_State[0] = TS_Red
-                                                    TS_State[3] = TS_Red
-                                if mExpress and MoverL == False and mToSta == False:
-                                    mExpStnMiles -= mDetMiles
-                                    if mExpStnMiles < MScale and mBySta == False:
-                                        w.ui.lblMainStaNm.setText(Main_NS[mPtr])
-                                        TS_State[21]=TS_On  # turn on station light
-                                        if MoverL == False:
-                                            mBySta = True                   
-                                if MoverL and mToSta and lsiding and mStrtSet:
-                                    TS_State[21]=TS_On      # turn on station light
-                            if MoverL and mToSta:
-                                if lsiding:
-                                    if Main_Dir == "S":
-                                        TS_State[0] = TS_Yellow
-                                        w.ui.pbMSS_1.setPalette(palYellow)
+                                                else:
+                                                    TS_State[4] = TS_Red
+
+                                                # set switches to allow LOCAL to go into siding
+                                                if Local_Dir == "S":
+                                                    TS_State[10] = TS_Yellow
+                                                    Set_Switches("L", "S")
+                                                else:
+                                                    TS_State[14] = TS_Yellow
+                                                    Set_Switches("L", "N")
+
+                                                # set WYE for LOCAL
+                                                if yLeft1 == False:
+                                                    Set_Switches("Y", "L")
+                                                else:
+                                                    Set_Switches("Y", "R")
+
+                                                TS_State[18] = TS_Red
+                                                w.ui.pbWyeLSO.setPalette(palRed)
+                                                w.ui.pbWyeRSO.setPalette(palRed)
+
+                                                lToSiding = True
+                                                # set local lights of travel to yellow
+                                                # wait for local to go into turn off
+                                                # Look for Det 8/9 or 10 to go true?????
+                                        else:
+                                            # Main and Local change loops
+                                            MLswitch = True
+                                            if ((MT_Pos == "3N") or (MT_Pos == "2S")) and (mToStnMiles <= mDetMiles):
+                                                # Ready to head to station on inner Loop
+                                                w.ui.lblMain_Arriv.setText("Arriving")
+                                                TS_State[21]=TS_On      # turn on station lights
+                                                # time to set switches and signals to allow 
+                                                # MAIN and LOCAL to switch LOOPs
+                                                if Local_Dir == Main_Dir:
+                                                    if (LT_Pos == "3N" and Main_Dir == "N"):
+                                                        TS_State[4] = TS_Yellow
+                                                        TS_State[5] = TS_Yellow
+                                                        TS_State[13] = TS_Red
+                                                    elif (LT_Pos == "2S" and Main_Dir == "S"):
+                                                        TS_State[3] = TS_Yellow
+                                                        TS_State[0] = TS_Yellow
+                                                        TS_State[11] = TS_Red
+                                                    else:
+                                                        TS_State[0] = TS_Red
+                                                        TS_State[3] = TS_Red
+                                    if mExpress and MoverL == False and mToSta == False:
+                                        mExpStnMiles -= mDetMiles
+                                        if mExpStnMiles < MScale and mBySta == False:
+                                            w.ui.lblMainStaNm.setText(Main_NS[mPtr])
+                                            TS_State[21]=TS_On  # turn on station light
+                                            if MoverL == False:
+                                                mBySta = True                   
+                                    if MoverL and mToSta and lsiding and mStrtSet:
+                                        TS_State[21]=TS_On      # turn on station light
+                                if MoverL and mToSta:
+                                    if lsiding:
+                                        if Main_Dir == "S":
+                                            TS_State[0] = TS_Yellow
+                                            w.ui.pbMSS_1.setPalette(palYellow)
+                                        else:
+                                            TS_State[4] = TS_Yellow
+                                            w.ui.pbMSN_1.setPalette(palYellow)
                                     else:
-                                        TS_State[4] = TS_Yellow
-                                        w.ui.pbMSN_1.setPalette(palYellow)
-                                else:
-                                    if Main_Dir == "S":
-                                        TS_State[0] = TS_Red
-                                        w.ui.pbMSS_1.setPalette(palRed)
-                                    else:
-                                        TS_State[4] = TS_Red
-                                        w.ui.pbMSN_1.setPalette(palRed)
-                    elif i < 8 and RunDets != 1:
+                                        if Main_Dir == "S":
+                                            TS_State[0] = TS_Red
+                                            w.ui.pbMSS_1.setPalette(palRed)
+                                        else:
+                                            TS_State[4] = TS_Red
+                                            w.ui.pbMSN_1.setPalette(palRed)
+                    elif i > 2 and i < 8 and RunDets != 1:
                         # Local Loop
                         LT_Pos = (str(i-4)+Local_Dir)
                         if i == 4:
                             if TD_State[i]:
                                 w.ui.pbLD_1.setPalette(palBlue)
-                                if Testing == False:
-                                    if MoverL and lsiding:
-                                        if Main_Dir == "S":
-                                            TS_State[11] = TS_Red
-                                            TS_State[10] = TS_Yellow
+                                if MoverL and lsiding:
+                                    if Main_Dir == "S":
+                                        TS_State[11] = TS_Red
+                                        TS_State[10] = TS_Yellow
+                                        TS_State[9] = TS_Yellow
+                                        TS_State[8] = TS_Yellow
+                                        w.ui.pbLSS_1.setPalette(palYellow)
+                                        w.ui.pbLSS_2.setPalette(palYellow)
+                                        w.ui.pbLSS_3.setPalette(palYellow)
+                                        w.ui.pbLSS_4.setPalette(palRed)
+                                    elif Local_Dir == "N":
+                                        TS_State[15] = TS_Yellow
+                                        TS_State[14] = TS_Yellow
+                                        w.ui.pbLSN_3.setPalette(palYellow)
+                                        w.ui.pbLSN_4.setPalette(palYellow)
+                                        TS_State[13] = TS_Yellow
+                                        TS_State[12] = TS_Red
+                                        w.ui.pbLSN_1.setPalette(palRed)
+                                        w.ui.pbLSN_2.setPalette(palYellow)
+                                else:
+                                    if Local_Dir == "S":
+                                        TS_State[11] = TS_Red
+                                        TS_State[10] = TS_Yellow
+                                        if lToSta:
                                             TS_State[9] = TS_Yellow
                                             TS_State[8] = TS_Yellow
                                             w.ui.pbLSS_1.setPalette(palYellow)
                                             w.ui.pbLSS_2.setPalette(palYellow)
-                                            w.ui.pbLSS_3.setPalette(palYellow)
-                                            w.ui.pbLSS_4.setPalette(palRed)
-                                        else:       # == "N"
+                                        else:
+                                            TS_State[9] = TS_Green
+                                            TS_State[8] = TS_Green
+                                            w.ui.pbLSS_1.setPalette(palGreen)
+                                            w.ui.pbLSS_2.setPalette(palGreen)
+                                        w.ui.pbLSS_3.setPalette(palYellow)
+                                        w.ui.pbLSS_4.setPalette(palRed)
+                                    elif Local_Dir == "N":
+                                        if lToSta:
                                             TS_State[15] = TS_Yellow
                                             TS_State[14] = TS_Yellow
                                             w.ui.pbLSN_3.setPalette(palYellow)
                                             w.ui.pbLSN_4.setPalette(palYellow)
-                                            TS_State[13] = TS_Yellow
-                                            TS_State[12] = TS_Red
-                                            w.ui.pbLSN_1.setPalette(palRed)
-                                            w.ui.pbLSN_2.setPalette(palYellow)
-                                    else:
-                                        if Local_Dir == "S":
-                                            TS_State[11] = TS_Red
-                                            TS_State[10] = TS_Yellow
-                                            if lToSta:
-                                                TS_State[9] = TS_Yellow
-                                                TS_State[8] = TS_Yellow
-                                                w.ui.pbLSS_1.setPalette(palYellow)
-                                                w.ui.pbLSS_2.setPalette(palYellow)
-                                            else:
-                                                TS_State[9] = TS_Green
-                                                TS_State[8] = TS_Green
-                                                w.ui.pbLSS_1.setPalette(palGreen)
-                                                w.ui.pbLSS_2.setPalette(palGreen)
-                                            w.ui.pbLSS_3.setPalette(palYellow)
-                                            w.ui.pbLSS_4.setPalette(palRed)
-                                        else:       # == "N"
-                                            if lToSta:
-                                                TS_State[15] = TS_Yellow
-                                                TS_State[14] = TS_Yellow
-                                                w.ui.pbLSN_3.setPalette(palYellow)
-                                                w.ui.pbLSN_4.setPalette(palYellow)
-                                            else:
-                                                TS_State[15] = TS_Green
-                                                TS_State[14] = TS_Green
-                                                w.ui.pbLSN_3.setPalette(palGreen)
-                                                w.ui.pbLSN_4.setPalette(palGreen)
-                                            TS_State[13] = TS_Yellow
-                                            TS_State[12] = TS_Red
-                                            w.ui.pbLSN_1.setPalette(palRed)
-                                            w.ui.pbLSN_2.setPalette(palYellow)
-                                if lohi:
-                                    # use for speed and direction detection
-                                    setSpdDir("L", i-4, time())
+                                        else:
+                                            TS_State[15] = TS_Green
+                                            TS_State[14] = TS_Green
+                                            w.ui.pbLSN_3.setPalette(palGreen)
+                                            w.ui.pbLSN_4.setPalette(palGreen)
+                                        TS_State[13] = TS_Yellow
+                                        TS_State[12] = TS_Red
+                                        w.ui.pbLSN_1.setPalette(palRed)
+                                        w.ui.pbLSN_2.setPalette(palYellow)
+                                if lohi and lp1:
+                                    if lsiding == False:
+                                        # use for speed and direction detection
+                                        setSpdDir("L", i-4, time())
                             else:
                                 w.ui.pbLD_1.setPalette(palBlank)
                         elif i == 5:
                             if TD_State[i]:
                                 w.ui.pbLD_2.setPalette(palBlue)
-                                if Testing == False:
-                                    if MoverL and lsiding:
-                                        if Main_Dir == "S":
-                                            TS_State[8] = TS_Red
+                                if MoverL and lsiding:
+                                    if Main_Dir == "S":
+                                        TS_State[8] = TS_Red
+                                        TS_State[9] = TS_Yellow
+                                        TS_State[10] = TS_Yellow
+                                        w.ui.pbLSS_2.setPalette(palYellow)
+                                        w.ui.pbLSS_3.setPalette(palYellow)
+                                        TS_State[11] = TS_Yellow
+                                        w.ui.pbLSS_1.setPalette(palRed)
+                                        w.ui.pbLSS_4.setPalette(palYellow)
+                                    elif Local_Dir == "N":
+                                        TS_State[12] = TS_Yellow
+                                        TS_State[15] = TS_Yellow
+                                        w.ui.pbLSN_1.setPalette(palYellow)
+                                        w.ui.pbLSN_4.setPalette(palYellow)
+                                        TS_State[13] = TS_Red
+                                        TS_State[14] = TS_Yellow
+                                        w.ui.pbLSN_2.setPalette(palRed)
+                                        w.ui.pbLSN_3.setPalette(palYellow)
+                                else:
+                                    if Local_Dir == "S":
+                                        TS_State[8] = TS_Red
+                                        if lToSta:
                                             TS_State[9] = TS_Yellow
                                             TS_State[10] = TS_Yellow
                                             w.ui.pbLSS_2.setPalette(palYellow)
                                             w.ui.pbLSS_3.setPalette(palYellow)
-                                            TS_State[11] = TS_Yellow
-                                            w.ui.pbLSS_1.setPalette(palRed)
-                                            w.ui.pbLSS_4.setPalette(palYellow)
-                                        else:       # == "N"
+                                        else:
+                                            TS_State[9] = TS_Green
+                                            TS_State[10] = TS_Green
+                                            w.ui.pbLSS_2.setPalette(palGreen)
+                                            w.ui.pbLSS_3.setPalette(palGreen)
+                                        TS_State[11] = TS_Yellow
+                                        w.ui.pbLSS_1.setPalette(palRed)
+                                        w.ui.pbLSS_4.setPalette(palYellow)
+                                    elif Local_Dir == "N":
+                                        if lToSta:
                                             TS_State[12] = TS_Yellow
                                             TS_State[15] = TS_Yellow
                                             w.ui.pbLSN_1.setPalette(palYellow)
                                             w.ui.pbLSN_4.setPalette(palYellow)
-                                            TS_State[13] = TS_Red
-                                            TS_State[14] = TS_Yellow
-                                            w.ui.pbLSN_2.setPalette(palRed)
-                                            w.ui.pbLSN_3.setPalette(palYellow)
-                                    else:
-                                        if Local_Dir == "S":
-                                            TS_State[8] = TS_Red
-                                            if lToSta:
-                                                TS_State[9] = TS_Yellow
-                                                TS_State[10] = TS_Yellow
-                                                w.ui.pbLSS_2.setPalette(palYellow)
-                                                w.ui.pbLSS_3.setPalette(palYellow)
-                                            else:
-                                                TS_State[9] = TS_Green
-                                                TS_State[10] = TS_Green
-                                                w.ui.pbLSS_2.setPalette(palGreen)
-                                                w.ui.pbLSS_3.setPalette(palGreen)
-                                            TS_State[11] = TS_Yellow
-                                            w.ui.pbLSS_1.setPalette(palRed)
-                                            w.ui.pbLSS_4.setPalette(palYellow)
-                                        else:       # == "N"
-                                            if lToSta:
-                                                TS_State[12] = TS_Yellow
-                                                TS_State[15] = TS_Yellow
-                                                w.ui.pbLSN_1.setPalette(palYellow)
-                                                w.ui.pbLSN_4.setPalette(palYellow)
-                                            else:
-                                                TS_State[12] = TS_Green
-                                                TS_State[15] = TS_Green
-                                                w.ui.pbLSN_1.setPalette(palGreen)
-                                                w.ui.pbLSN_4.setPalette(palGreen)
-                                            TS_State[13] = TS_Red
-                                            TS_State[14] = TS_Yellow
-                                            w.ui.pbLSN_2.setPalette(palRed)
-                                            w.ui.pbLSN_3.setPalette(palYellow)
-                                if lohi:
-                                    # use for speed and direction detection
-                                    setSpdDir("L", i-4, time())
+                                        else:
+                                            TS_State[12] = TS_Green
+                                            TS_State[15] = TS_Green
+                                            w.ui.pbLSN_1.setPalette(palGreen)
+                                            w.ui.pbLSN_4.setPalette(palGreen)
+                                        TS_State[13] = TS_Red
+                                        TS_State[14] = TS_Yellow
+                                        w.ui.pbLSN_2.setPalette(palRed)
+                                        w.ui.pbLSN_3.setPalette(palYellow)
+                                if lohi and lp1:
+                                    if lsiding == False:
+                                        # use for speed and direction detection
+                                        setSpdDir("L", i-4, time())
                             else:
                                 w.ui.pbLD_2.setPalette(palBlank)
                         elif i == 6:                                                           
                             if TD_State[i]:
                                 w.ui.pbLD_3.setPalette(palBlue)
-                                if Testing == False:
-                                    if MoverL and lsiding:
-                                        if Main_Dir == "S":
-                                            TS_State[8] = TS_Yellow
-                                            TS_State[9] = TS_Red
+                                if MoverL and lsiding:
+                                    if Main_Dir == "S":
+                                        TS_State[8] = TS_Yellow
+                                        TS_State[9] = TS_Red
+                                        TS_State[10] = TS_Yellow
+                                        TS_State[11] = TS_Yellow
+                                        w.ui.pbLSS_1.setPalette(palYellow)
+                                        w.ui.pbLSS_2.setPalette(palRed)
+                                        w.ui.pbLSS_3.setPalette(palYellow)
+                                        w.ui.pbLSS_4.setPalette(palYellow)
+                                    elif Local_Dir == "N":
+                                        TS_State[12] = TS_Yellow
+                                        TS_State[13] = TS_Yellow
+                                        TS_State[14] = TS_Red
+                                        TS_State[15] = TS_Yellow
+                                        w.ui.pbLSN_1.setPalette(palYellow)
+                                        w.ui.pbLSN_2.setPalette(palYellow)
+                                        w.ui.pbLSN_3.setPalette(palRed)
+                                        w.ui.pbLSN_4.setPalette(palYellow)
+                                else:
+                                    if Local_Dir == "S":
+                                        TS_State[8] = TS_Yellow
+                                        TS_State[9] = TS_Red
+                                        if lToSta:
                                             TS_State[10] = TS_Yellow
                                             TS_State[11] = TS_Yellow
-                                            w.ui.pbLSS_1.setPalette(palYellow)
-                                            w.ui.pbLSS_2.setPalette(palRed)
+                                        else:
+                                            TS_State[10] = TS_Green
+                                            TS_State[11] = TS_Green
+                                        w.ui.pbLSS_1.setPalette(palYellow)
+                                        w.ui.pbLSS_2.setPalette(palRed)
+                                        if lToSta:
                                             w.ui.pbLSS_3.setPalette(palYellow)
                                             w.ui.pbLSS_4.setPalette(palYellow)
-                                        else:       # == "N"
+                                        else:
+                                            w.ui.pbLSS_3.setPalette(palGreen)
+                                            w.ui.pbLSS_4.setPalette(palGreen)
+                                    elif Local_Dir == "N":
+                                        if lToSta:
                                             TS_State[12] = TS_Yellow
                                             TS_State[13] = TS_Yellow
-                                            TS_State[14] = TS_Red
-                                            TS_State[15] = TS_Yellow
+                                        else:
+                                            TS_State[12] = TS_Green
+                                            TS_State[13] = TS_Green
+                                        TS_State[14] = TS_Red
+                                        TS_State[15] = TS_Yellow
+                                        if lToSta:
                                             w.ui.pbLSN_1.setPalette(palYellow)
                                             w.ui.pbLSN_2.setPalette(palYellow)
-                                            w.ui.pbLSN_3.setPalette(palRed)
-                                            w.ui.pbLSN_4.setPalette(palYellow)
-                                    else:
-                                        if Local_Dir == "S":
-                                            TS_State[8] = TS_Yellow
-                                            TS_State[9] = TS_Red
-                                            if lToSta:
-                                                TS_State[10] = TS_Yellow
-                                                TS_State[11] = TS_Yellow
-                                            else:
-                                                TS_State[10] = TS_Green
-                                                TS_State[11] = TS_Green
-                                            w.ui.pbLSS_1.setPalette(palYellow)
-                                            w.ui.pbLSS_2.setPalette(palRed)
-                                            if lToSta:
-                                                w.ui.pbLSS_3.setPalette(palYellow)
-                                                w.ui.pbLSS_4.setPalette(palYellow)
-                                            else:
-                                                w.ui.pbLSS_3.setPalette(palGreen)
-                                                w.ui.pbLSS_4.setPalette(palGreen)
-                                        else:       # == "N"
-                                            if lToSta:
-                                                TS_State[12] = TS_Yellow
-                                                TS_State[13] = TS_Yellow
-                                            else:
-                                                TS_State[12] = TS_Green
-                                                TS_State[13] = TS_Green
-                                            TS_State[14] = TS_Red
-                                            TS_State[15] = TS_Yellow
-                                            if lToSta:
-                                                w.ui.pbLSN_1.setPalette(palYellow)
-                                                w.ui.pbLSN_2.setPalette(palYellow)
-                                            else:
-                                                w.ui.pbLSN_1.setPalette(palGreen)
-                                                w.ui.pbLSN_2.setPalette(palGreen)
-                                            w.ui.pbLSN_3.setPalette(palRed)
-                                            w.ui.pbLSN_4.setPalette(palYellow)
-                                if lohi:
-                                    # use for speed and direction detection
-                                    setSpdDir("L", i-4, time())
+                                        else:
+                                            w.ui.pbLSN_1.setPalette(palGreen)
+                                            w.ui.pbLSN_2.setPalette(palGreen)
+                                        w.ui.pbLSN_3.setPalette(palRed)
+                                        w.ui.pbLSN_4.setPalette(palYellow)
+                                if lohi and lp1:
+                                    if lsiding == False:
+                                        # use for speed and direction detection
+                                        setSpdDir("L", i-4, time())
                             else:
                                 w.ui.pbLD_3.setPalette(palBlank)
                                 if lp1:
@@ -1080,7 +1101,7 @@ def ReadDetectors():
                                                 # Set Local back to Main
                                                 SetLocToMain()
                                                 Set_Signals("L","N",TS_Red)
-                                        else:                                   # Local_Dir == "N":
+                                        elif Local_Dir == "N":                                   # Local_Dir == "N":
                                             if lTurnAround and lTurned == False:
                                                 lTurned = True
                                                 #lTurnAround = False
@@ -1098,60 +1119,60 @@ def ReadDetectors():
                         elif i == 7:
                             if TD_State[i]:
                                 w.ui.pbLD_4.setPalette(palBlue)
-                                if Testing == False:
-                                    if MoverL and lsiding:
-                                        if Main_Dir == "S":
+                                if MoverL and lsiding:
+                                    if Main_Dir == "S":
+                                        TS_State[8] = TS_Yellow
+                                        TS_State[9] = TS_Yellow
+                                        TS_State[10] = TS_Red
+                                        TS_State[11] = TS_Yellow
+                                        w.ui.pbLSS_1.setPalette(palYellow)
+                                        w.ui.pbLSS_2.setPalette(palYellow)
+                                        w.ui.pbLSS_3.setPalette(palRed)
+                                        w.ui.pbLSS_4.setPalette(palYellow)
+                                    else:       # == "N"
+                                        TS_State[12] = TS_Yellow
+                                        TS_State[13] = TS_Yellow
+                                        TS_State[14] = TS_Yellow
+                                        TS_State[15] = TS_Red
+                                        w.ui.pbLSN_1.setPalette(palYellow)
+                                        w.ui.pbLSN_2.setPalette(palYellow)
+                                        w.ui.pbLSN_3.setPalette(palYellow)
+                                        w.ui.pbLSN_4.setPalette(palRed)
+                                else:
+                                    if Local_Dir == "S":
+                                        if lToSta:
                                             TS_State[8] = TS_Yellow
-                                            TS_State[9] = TS_Yellow
-                                            TS_State[10] = TS_Red
                                             TS_State[11] = TS_Yellow
                                             w.ui.pbLSS_1.setPalette(palYellow)
-                                            w.ui.pbLSS_2.setPalette(palYellow)
-                                            w.ui.pbLSS_3.setPalette(palRed)
                                             w.ui.pbLSS_4.setPalette(palYellow)
-                                        else:       # == "N"
-                                            TS_State[12] = TS_Yellow
+                                        else:
+                                            TS_State[8] = TS_Green
+                                            TS_State[11] = TS_Green
+                                            w.ui.pbLSS_1.setPalette(palGreen)
+                                            w.ui.pbLSS_4.setPalette(palGreen)
+                                        TS_State[9] = TS_Yellow
+                                        TS_State[10] = TS_Red
+                                        w.ui.pbLSS_2.setPalette(palYellow)
+                                        w.ui.pbLSS_3.setPalette(palRed)
+                                    elif Local_Dir == "N":
+                                        TS_State[12] = TS_Yellow
+                                        TS_State[15] = TS_Red
+                                        w.ui.pbLSN_1.setPalette(palYellow)
+                                        w.ui.pbLSN_4.setPalette(palRed)
+                                        if lToSta:
                                             TS_State[13] = TS_Yellow
                                             TS_State[14] = TS_Yellow
-                                            TS_State[15] = TS_Red
-                                            w.ui.pbLSN_1.setPalette(palYellow)
                                             w.ui.pbLSN_2.setPalette(palYellow)
                                             w.ui.pbLSN_3.setPalette(palYellow)
-                                            w.ui.pbLSN_4.setPalette(palRed)
-                                    else:
-                                        if Local_Dir == "S":
-                                            if lToSta:
-                                                TS_State[8] = TS_Yellow
-                                                TS_State[11] = TS_Yellow
-                                                w.ui.pbLSS_1.setPalette(palYellow)
-                                                w.ui.pbLSS_4.setPalette(palYellow)
-                                            else:
-                                                TS_State[8] = TS_Green
-                                                TS_State[11] = TS_Green
-                                                w.ui.pbLSS_1.setPalette(palGreen)
-                                                w.ui.pbLSS_4.setPalette(palGreen)
-                                            TS_State[9] = TS_Yellow
-                                            TS_State[10] = TS_Red
-                                            w.ui.pbLSS_2.setPalette(palYellow)
-                                            w.ui.pbLSS_3.setPalette(palRed)
-                                        else:       # == "N"
-                                            TS_State[12] = TS_Yellow
-                                            TS_State[15] = TS_Red
-                                            w.ui.pbLSN_1.setPalette(palYellow)
-                                            w.ui.pbLSN_4.setPalette(palRed)
-                                            if lToSta:
-                                                TS_State[13] = TS_Yellow
-                                                TS_State[14] = TS_Yellow
-                                                w.ui.pbLSN_2.setPalette(palYellow)
-                                                w.ui.pbLSN_3.setPalette(palYellow)
-                                            else:
-                                                TS_State[13] = TS_Green
-                                                TS_State[14] = TS_Green
-                                                w.ui.pbLSN_2.setPalette(palGreen)
-                                                w.ui.pbLSN_3.setPalette(palGreen)
-                                if lohi:
-                                    # use for speed and direction detection
-                                    setSpdDir("L", i-4, time())
+                                        else:
+                                            TS_State[13] = TS_Green
+                                            TS_State[14] = TS_Green
+                                            w.ui.pbLSN_2.setPalette(palGreen)
+                                            w.ui.pbLSN_3.setPalette(palGreen)
+                                if lohi and lp1:
+                                    if lsiding == False:
+                                        # use for speed and direction detection
+                                        setSpdDir("L", i-4, time())
                             else:
                                 w.ui.pbLD_4.setPalette(palBlank)
                                 if lp1:
@@ -1162,7 +1183,7 @@ def ReadDetectors():
                                                 # Set Local back to Main
                                                 SetLocToMain()
                                                 Set_Signals("L","S",TS_Red)
-                                        else:                                       # if Local_Dir == "S":
+                                        elif Local_Dir == "N":                                       # if Local_Dir == "S":
                                             if lTurnAround and lTurned == False:
                                                 lTurned = True
                                                 # lTurnAround = False
@@ -1177,27 +1198,50 @@ def ReadDetectors():
                                                 w.ui.lblLocStaNm.setText(CleanCt(Local_NS[lPtr],""))
                                                 w.ui.lblL_L.setText("NB")
                                                 w.ui.lblL_R.setText("L")
-                        # Local Loop Mileage
                         if lohi:
-                            if lp1:
-                                if (mAtSta == False):
-                                    if (lPtr != 0 and lPtr != len(Local_NS)):
-                                        lToStnMiles -= lDetMiles
-                                        lTripMiles += lDetMiles
-                                        # lMilesToNext -= lDetMiles# NOT DISPLAYED
-                                        displayLocalMiles()
-                                    if lExpress:
-                                        lExpStnMiles -= lDetMiles
-                                        if lExpStnMiles < LScale and lBySta == False:
-                                            w.ui.lblLocStaNm.setText(CleanCt(Local_NS[lPtr], ""))
+                            # Local Loop Mileage
+                            if Testing == False:
+                                if lp1:
+                                    if (mAtSta == False and lsiding == False):     # and lAtSta == False):
+                                        if (lPtr != 0 and lPtr != len(Local_NS)):
+                                            # if Local_Dir == "N":
+                                            if lToStnMiles == 0.0:
+                                                # for use when tralin is <= 1 loop away
+                                                lToStnMiles = LScale
+                                                if Local_Dir == "N":
+                                                    if i == 5:
+                                                        lToStnMiles *= 1.0
+                                                    elif i == 4:
+                                                        lToStnMiles *= 0.75
+                                                    elif i == 7:
+                                                        lToStnMiles *= 0.5
+                                                    elif i == 6:
+                                                        lToStnMiles *= 0.25
+                                                else:
+                                                    if i == 6:
+                                                        lToStnMiles *= 1.0
+                                                    elif i == 7:
+                                                        lToStnMiles *= 0.75
+                                                    elif i == 4:
+                                                        lToStnMiles *= 0.5
+                                                    elif i == 5:
+                                                        lToStnMiles *= 0.25                                                
+                                            lToStnMiles -= lDetMiles
+                                            lTripMiles += lDetMiles
+                                            # lMilesToNext -= lDetMiles# NOT DISPLAYED
+                                            displayLocalMiles()
+                                        if lExpress:
+                                            lExpStnMiles -= lDetMiles
+                                            if lExpStnMiles < LScale and lBySta == False:
+                                                w.ui.lblLocStaNm.setText(CleanCt(Local_NS[lPtr], ""))
+                                                TS_State[21]=TS_On  # turn on station light
+                                                lBySta = True
+                                        if (lToStnMiles < LScale) and lStrtSet:
+                                            # Ready to head to station on inner Loop
+                                            w.ui.lblLocal_Arriv.setText("Arriving")
+                                            lToSta = True
                                             TS_State[21]=TS_On  # turn on station light
-                                            lBySta = True
-                                    if (lToStnMiles < LScale) and lStrtSet:
-                                        # Ready to head to station on inner Loop
-                                        w.ui.lblLocal_Arriv.setText("Arriving")
-                                        lToSta = True
-                                        TS_State[21]=TS_On  # turn on station light
-                    elif i < 12:
+                    elif i > 7 and i < 12:
                         # Wye Detectors
                         if i == 8:
                             if TD_State[i]:
@@ -1299,8 +1343,8 @@ def ReadDetectors():
                     if i == 12:
                         # At the Station detected
                         if lohi:
-                            if Simulate:
-                                w.ui.pbSDL.setPalette(palAtSta)
+                            # if Simulate:
+                            w.ui.pbSDL.setPalette(palAtSta)
                             if lAtSta:
                                 if ctLps:
                                     ctLps = False
@@ -1311,7 +1355,9 @@ def ReadDetectors():
                                     ctLps = False
                                     w.ui.lblMain_Arriv.setText("Departing")
                             if ((MoverL and mToSta) or lToSta):
-                                if lToSta:
+                                if mToSta and lsiding:
+                                    mToStation()
+                                elif lToSta:
                                     lToSta = False
                                     lAtSta = True
                                     w.ui.lblLocal_Arriv.setText("Arrived")
@@ -1365,8 +1411,8 @@ def ReadDetectors():
                                         w.ui.lblLocStaNm.setText(CleanCt(Local_NS[lPtr],"y"))
                                         w.ui.lblLocal_Arriv.setText("Arrived")
                                         if lPtr>1 and lPtr < (len(Local_NS)-1):
-                                            if lPtr < (len(Local_NS)-2):
-                                                w.ui.lblLocal_Arriv.setText(CleanCt(Local_NS[lPtr+1],""))
+                                            # if lPtr < (len(Local_NS)-2):
+                                            #     w.ui.lblLocal_Arriv.setText(CleanCt(Local_NS[lPtr+1],""))
                                             if lExpress:
                                                 w.ui.lblLocal_Dest.setText(CleanCt(Local_NS[1],""))
                                             else:
@@ -1380,11 +1426,9 @@ def ReadDetectors():
                                         else:
                                             lToStnMiles = Loc_M_NS[lPtr]
                                     displayLocalMiles()
-                                elif mToSta and lsiding:
-                                    mToStation()
                         if hilo:
-                            if Simulate:
-                                w.ui.pbSDL.setPalette(palBlnk)
+                            # if Simulate:
+                            #     w.ui.pbSDL.setPalette(palBlnk)
                             if (mAtSta or lAtSta):
                                 # leaving station
                                 if mAtSta and Main_Over_Local:
@@ -1459,14 +1503,14 @@ def ReadDetectors():
                     elif i == 13:
                         if lp1:
                             if lohi:
-                                if Simulate:
-                                    w.ui.pbSDM.setPalette(palAtSta)
+                                # if Simulate:
+                                w.ui.pbSDM.setPalette(palAtSta)
                                 # arriving at Main Express Station
                                 if mToSta and mExpress and (mDestSet != mPtr):
                                     mToStation()
                             if hilo:
-                                if Simulate:
-                                    w.ui.pbSDM.setPalette(palBlnk)
+                                # if Simulate:
+                                w.ui.pbSDM.setPalette(palBlnk)
                                 # leaving Main Express Station
                                 if mAtSta and mExpress and (mDestSet != mPtr):
                                     mLvgStation()
@@ -1479,6 +1523,8 @@ def ReadDetectors():
                                         mPtr -= 1
                                     # test for out of range!!!!
                                     mExpStnMiles = Main_M_NS[mPtr]
+                # if Simulate:
+                Display_Positions()
             else:
                 if det == 0 and TD_DBnc[i] != 0:
                     TD_DBnc[i] -= 1
@@ -1559,7 +1605,8 @@ def Servo_Control(sv, pos):
     return(1)
 
 def ToggleDet(msg):
-    global Simulate
+    global Simulate, RunDets
+    
     if Simulate == False:
         Simulate = True
     if Simulate:
@@ -1594,7 +1641,6 @@ def Load_Track_Inventory():
     global SV_Type, TS_Type, TD_Type, TrackInventoryVer, \
            lToStnMiles, lTripMiles, LScale, mToStnMiles, mTripMiles, MScale
 
-    TrackInventoryVer = 0.0
     filename = "Track_Inventory.txt"    
     try:
         f = open(filename)
@@ -1637,28 +1683,33 @@ def Default_Switches():
 
 def Save_Train_State(fN):
     global  TrackStateVer, SV_State, TS_State, TD_Type, \
-            SV_Type, TS_Type, TD_Type, TrackInventoryVer, \
+            SV_Type, TS_Type, TD_Type, \
             MainStation, mToStnMiles, mTripMiles, MScale, \
             mPtr,  mDetMiles, Main_Dir, MT_Pos, \
             LocalStation, lToStnMiles, lTripMiles, LScale, \
-            lPtr, lDetMiles, Local_Dir, LT_Pos
+            lPtr, lDetMiles, Local_Dir, LT_Pos                  # TrackInventoryVer,
     
 
     # Change name of current invertory file to *.bak
     fNew = ""
     try:
-        # get version
-        f = open("./"+fN+".ses")
-        lines = f.readlines()
-        line = lines[3]
-        TrackStateVer = float(line.strip("\n"))
-        
-        # back up previous version
-        fBak = "./"+fN+".bak"
-        fNew = "./"+fN+".ses"
-        if os.path.exists(fBak):
-            os.remove(fBak)
-        os.rename(fNew, fBak)
+        fname = "./"+fN+".ses"
+        if os.path.exists(fname):
+            # get version
+            f = open(fname)
+            lines = f.readlines()
+            line = lines[3]
+            TrackStateVer = float(line.strip("\n"))
+            
+            # back up previous version
+            fBak = "./"+fN+".bak"
+            fNew = fname
+            if os.path.exists(fBak):
+                os.remove(fBak)
+            os.rename(fNew, fBak)
+        else:
+            TrackStateVer = 1.0
+            fNew = fname
     except:
         #f.close()
         print("No Previous Backup File")
@@ -1767,16 +1818,16 @@ def TurnOffHardware():
 
 def LoadCurSession(fn):
     global  TrackStateVer, SV_State, TS_State, TD_Type, \
-            SV_Type, TS_Type, TD_Type, TrackInventoryVer, \
+            SV_Type, TS_Type, TD_Type, \
             MainStation, mToStnMiles, mTripMiles, MScale, \
             mPtr, mDetMiles, Main_Dir, MainMiles, MT_Pos, \
             LocalStation, lToStnMiles, lTripMiles, LScale, \
-            lPtr, lDetMiles, Local_Dir, LocalMiles, LT_Pos
+            lPtr, lDetMiles, Local_Dir, LocalMiles, LT_Pos    # TrackInventoryVer, \
 
     TrackStateVer = 0.0
     # filename = "Session.ses" 
     try:
-        if fn == False:
+        if fn == "":
             fn = "CurSession"
         f = open("./"+fn+".ses")
         lines = f.readlines()
@@ -1841,9 +1892,21 @@ def LoadCurSession(fn):
 
         f.close()
         TS_Blinker()
+
+        Display_Scales()
+
     except:
-        filename = ""
+        filename = fn
         TrackStateVer = 0.0
+
+def Display_Scales():
+    w.ui.lblScale.setText("Scales: Main = "+str(MScale)+" mile(s)/loop  Local = "+str(LScale)+" mile(s)/loop")
+
+def Display_Positions():
+    if Simulate:
+        w.ui.lblTrain_Pos.setText("Zones: M: "+ MT_Pos + "   L: " + LT_Pos)
+    else:
+        w.ui.lblTrain_Pos.setText("")
 
 def SaveSession():
     global SessionName
@@ -1854,6 +1917,7 @@ def LoadSession():
     LoadCurSession(SessionName)
     Testing = False
     RunDets = 3
+    Display_Positions()
 
 def ClearDetectors():
     w.ui.pbMD_1.setPalette(palBlank)
@@ -2186,6 +2250,7 @@ def Load_Acela_Data(fFile):
             mLvgSta, Testing, MoverL, mTtl_Dn, mTtl_Up, mStrtSet, mDestSet
 
     # Load Acela Start point and direction of travel
+    w.ui.lblMainLine.setText("ACELA")
     if (fFile == False):
         MainMiles = 0.0
     w.ui.lblMainStaNm.setText(Main_NS[mPtr])
@@ -2240,19 +2305,23 @@ def Load_Acela_Data(fFile):
 def startAcela():
     global Testing, RunDets, Main_Dir, MoverL, mToSta, mStrtSet
 
+    dir = ""
     Default_Switches()
     if mStrtSet:
         if Main_Dir=="S":
             dir = "N"
-        else:
+        elif Main_Dir == "N":
             dir = "S"
         Set_Signals("M", dir, "R")
         # if TrnDet.read_pin(11):
         #     mAtSta = True
         MoverL = True
         # mToSta = True
-    Testing = False
+        Testing = False
     RunDets = 1
+
+    Display_Scales()
+    Display_Positions()
 
 def startCTShore():
     global Testing, RunDets, Local_Dir, lToSta, lAtSta, lStrtSet
@@ -2261,35 +2330,38 @@ def startCTShore():
     if lStrtSet:
         if Local_Dir=="S":
             dir = "N"
-        else:
+        elif Local_Dir == "N":
             dir = "S"
         Set_Signals("L", dir, "R")
         if TrnDet.read_pin(11)==0:
             lAtSta = True
             w.ui.lblLocal_Arriv.setText("Arrived")    
-        TS_State[21]=TS_On
+        TS_State[21]=TS_On      # turn on local station
         lToSta = True
-    Testing = False
+        Testing = False
     RunDets = 2
 
+    Display_Scales()
+    Display_Positions()
+
 def startBoth():
-    global Testing, RunDets
+    global RunDets
 
     startAcela()
     startCTShore()
     RunDets = 3
 
-def ShowMsg():
-    global timeMDir, timeMD, timeMPre, timeM, timeLDir, timeLD, timeLPre, timeL
-    # global MT_Pos, LT_Pos, mPtr, lPtr, Time2, timeDir
-    # w.ui.statusBar.showMessage("MPos = " + str(MT_Pos)+"  LPos = " + str(LT_Pos) + "  mPtr = " + str(mPtr) + "  lPtr = " + str(lPtr) + "  Train Time = " + str(Time2), 0)
-    w.ui.statusBar.showMessage("Main Dir = " + timeMDir + "  Main Speed = " + str("%.1f" % mainSpd), 0)
+# def ShowMsg():
+#     global timeMDir, timeMD, timeMPre, timeM, timeLDir, timeLD, timeLPre, timeL
+#     # global MT_Pos, LT_Pos, mPtr, lPtr, Time2, timeDir
+#     # w.ui.statusBar.showMessage("MPos = " + str(MT_Pos)+"  LPos = " + str(LT_Pos) + "  mPtr = " + str(mPtr) + "  lPtr = " + str(lPtr) + "  Train Time = " + str(Time2), 0)
+#     w.ui.statusBar.showMessage("Main Dir = " + timeMDir + "  Main Speed = " + str("%.1f" % mainSpd), 0)
 
 def ShowWarng():
     global WarningFlg
 
     if WarningFlg:
-        w.ui.lblMainLine.setText("Missing Boards!!")
+        w.ui.lblMainLine.setText('Boards Missing!!')
         WarningFlg = False
     else:
         w.ui.lblMainLine.setText("")
@@ -2304,6 +2376,10 @@ class AppWindow(QMainWindow):
 
         Load_Track_Inventory()
 
+        self.ui.lblVer.setText("Ver: " + str(AI_Train_Ver))
+        self.ui.lblScale.setText("")
+        self.ui.lblTrain_Pos.setText("")
+
         msg = ""
 
         # clear Direction Indicators
@@ -2311,10 +2387,16 @@ class AppWindow(QMainWindow):
         self.ui.lblM_R.setText("")
         self.ui.lblL_L.setText("")
         self.ui.lblL_R.setText("")
+        
+        # clear Line names and Station names
+        self.ui.lblMainLine.setText("")
+        self.ui.lblMainStaNm.setText("")
+        self.ui.lblLocalLine.setText("")
+        self.ui.lblLocStaNm.setText("")
 
-        fnt = QFont()
-        fnt.setPointSize(12)
-        self.ui.statusBar.setFont(fnt)
+        # fnt = QFont()
+        # fnt.setPointSize(12)
+        # self.ui.statusBar.setFont(fnt)
 
         # set Station Color
         self.ui.pbSDM.setPalette(palBlnk)

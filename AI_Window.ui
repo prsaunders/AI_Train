@@ -7880,6 +7880,66 @@
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
+   <widget class="QLabel" name="lblVer">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>720</y>
+      <width>90</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Ver: 0.123</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblScale">
+    <property name="geometry">
+     <rect>
+      <x>180</x>
+      <y>720</y>
+      <width>371</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Scales: Main = 10 miles/loop   Local = 10 mile/loop</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="lblTrain_Pos">
+    <property name="geometry">
+     <rect>
+      <x>620</x>
+      <y>720</y>
+      <width>181</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Positions:  M: 0S   L: 2N</string>
+    </property>
+   </widget>
    <zorder>lineL3</zorder>
    <zorder>lineM1</zorder>
    <zorder>lineM_SwR3</zorder>
@@ -7976,20 +8036,9 @@
    <zorder>pbSDM</zorder>
    <zorder>pbWyeLD_3</zorder>
    <zorder>lineWyeL3_2</zorder>
-  </widget>
-  <widget class="QStatusBar" name="statusBar">
-   <property name="font">
-    <font>
-     <family>Piboto [Goog]</family>
-     <pointsize>10</pointsize>
-    </font>
-   </property>
-   <property name="inputMethodHints">
-    <set>Qt::ImhNone</set>
-   </property>
-   <property name="sizeGripEnabled">
-    <bool>false</bool>
-   </property>
+   <zorder>lblVer</zorder>
+   <zorder>lblScale</zorder>
+   <zorder>lblTrain_Pos</zorder>
   </widget>
   <widget class="QMenuBar" name="menuBar">
    <property name="geometry">

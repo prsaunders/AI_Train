@@ -1,52 +1,52 @@
 Session State
 
 Version:
-0.052
+1.003
 
-Mon Feb  5 15:33:10 2024
+Sun Feb 11 08:04:22 2024
 
 Servo State:
  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  
 
 Train Detector State:
-0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 Last Main Train Position:
 
 Last Local Train Position:
-
+2S
 
 Train Signal State:
-R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, O, O, O, O
+R, R, R, R, R, R, R, R, Y, R, G, G, R, R, R, R, R, R, R, R, O, O, O, O
 
 Acela Route Selection
 Main Station:
-Boston, MA(BBY)
+New York, NY(NYP)
 Main Ptr:
-1
+6
 Direction:
-S
+N
 Main Miles:
-450
+220
 Miles To Station:
 0.0
 Trip Miles:
 0.0
 Scale:
-10
+2
 
 CT Route Selection
 Local Station:
-Stamford(M)
+Old Saybrook(S)
 Local Ptr:
-17
+2
 Direction:
-N
+S
 Local Miles:
 102
 Miles To Station:
-0.0
+18
 Trip Miles:
-0.0
+0.75
 Scale:
 1

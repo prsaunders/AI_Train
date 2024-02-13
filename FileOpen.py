@@ -19,7 +19,7 @@ class Ui_dlgFileOpen(object):
         font.setPointSize(10)
         self.cbxFileList.setFont(font)
         self.cbxFileList.setInputMethodHints(QtCore.Qt.ImhMultiLine)
-        self.cbxFileList.setEditable(False)
+        self.cbxFileList.setEditable(True)
         self.cbxFileList.setMaxVisibleItems(9)
         self.cbxFileList.setObjectName("cbxFileList")
         self.label = QtWidgets.QLabel(dlgFileOpen)

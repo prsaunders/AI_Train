@@ -1,9 +1,9 @@
 Session State
 
 Version:
-0.052
+1.002
 
-Mon Feb  5 15:33:10 2024
+Fri Feb  9 09:44:41 2024
 
 Servo State:
  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  ,  
@@ -21,27 +21,27 @@ R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, R, O, O, O, O
 
 Acela Route Selection
 Main Station:
-Boston, MA(BBY)
+New York, NY(NYP)
 Main Ptr:
-1
+6
 Direction:
-S
+N
 Main Miles:
-450
+220
 Miles To Station:
 0.0
 Trip Miles:
 0.0
 Scale:
-10
+2
 
 CT Route Selection
 Local Station:
-Stamford(M)
+New London(S)
 Local Ptr:
-17
+1
 Direction:
-N
+S
 Local Miles:
 102
 Miles To Station:
